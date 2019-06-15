@@ -1,7 +1,6 @@
 class CatalogManager:
 
-    def __init__(self, database_name):
-        self.database_name = database_name
+    def __init__(self):
         self.meta_data = {}
 
     def create_table(self, table_map):
@@ -29,6 +28,8 @@ class CatalogManager:
                     record_size += type
             table_map[table_name]['fmt'] = fmt
             table_map[table_name]['record_size'] = record_size
+            table_map[table_name]['invaild_list'] = []
+            table_map[table_name]['size'] = 0
 
         self.meta_data.update(table_map)
 
