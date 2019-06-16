@@ -65,3 +65,5 @@ class RecordManager:
 
         for atr in self.catalog_manager.meta_data[table_name]['index']:
             self.catalog_manager.meta_data[table_name]['index'][atr].delete(block['block'][record_number][atr + 1])
+
+    def find(self,table_name,):
