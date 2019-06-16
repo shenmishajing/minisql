@@ -30,6 +30,9 @@ class TreeNode:
         self.keys.insert(index, key)
         self.pointers.insert(index, pointer)
 
+    def length(self):
+        return len(self.keys)
+
     def __del__(self):
         print("Node Released")
         self.keys.clear()
@@ -145,7 +148,7 @@ class BPlusTree:
             found = False
             index =0
             for key in node.keys:
-                if key == value:
+                if key <= value:
                     found = True
                     break
                 index += 1
@@ -294,6 +297,7 @@ class BPlusTree:
                         temp_value = another_node.keys[0]
                         parent.keys[child_index] = temp_value
 
+'''
 
 bpt = BPlusTree(3) #type:BPlusTree
 n = 15
@@ -319,3 +323,5 @@ head = bpt.get_head() #type:TreeNode
 while head is not None:
     print(head.keys, head.pointers)
     head = head.next
+
+'''

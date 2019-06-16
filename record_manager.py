@@ -270,7 +270,7 @@ class RecordManager:
                 node = node.next()
                 pointer_index = 0
         else:
-            for block_number in range(self.catalog_manager.meta_data[table_name]['size']):
+            for block_number in range(self.catalog_manager.meta_data[table_name]['size']):#遍历所有的block
                 block = self.buffer_manager.get_block(table_name, block_number,
                                                       self.catalog_manager.meta_data[table_name]['record_size'],
                                                       self.catalog_manager.meta_data[table_name]['fmt'])
