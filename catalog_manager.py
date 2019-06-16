@@ -1,7 +1,16 @@
 class CatalogManager:
 
-    def __init__(self):
+    def __init__(self, work_dir='.'):
+        self.work_dir = work_dir
         self.meta_data = {}
+
+    def save(self):
+        catalog_file = open(self.work_dir + '/catalog.txt', 'w')
+        catalog_file.write(str(self.meta_data))
+
+    def open(self):
+        catalog_file = open(self.work_dir + '/catalog.txt', 'r')
+        self.meta_data = eval(catalog_file.readline())
 
     def create_table(self, table_map):
         for table_name in table_map:
