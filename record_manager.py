@@ -66,6 +66,21 @@ class RecordManager:
         for atr in self.catalog_manager.meta_data[table_name]['index']:
             self.catalog_manager.meta_data[table_name]['index'][atr].delete(block['block'][record_number][atr + 1])
 
+    def delete_with_blocknum(self, table_name, block_number, record_number):
+        block = self.buffer_manager.get_block(table_name, block_number,
+                                              self.catalog_manager.meta_data[table_name]['record_size'],
+                                              self.catalog_manager.meta_data[table_name]['fmt'])
+        block['change'] = True
+        block['pin'] = True
+        block['block'][record_number][0] = False
+        block['pin'] = False
+
+        self.catalog_manager.meta_data[table_name]['invaild_list'].append((block_number, record_number))
+
+        for atr in self.catalog_manager.meta_data[table_name]['index']:
+            self.catalog_manager.meta_data[table_name]['index'][atr].delete(block['block'][record_number][atr + 1])
+
+
     def calculate_search_range_percentage(self, atr, search_range):
         if atr['type'] == 0:
             if search_range[1] is None and search_range[2] is None:
@@ -279,3 +294,22 @@ class RecordManager:
                         res.append([block_number, record_number])
 
         return res
+
+    def find_all_records(self, table_name):
+        res = []
+        for block_number in range(self.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
+            block = self.buffer_manager.get_block(table_name, block_number,
+                                                  self.catalog_manager.meta_data[table_name]['record_size'],
+                                                  self.catalog_manager.meta_data[table_name]['fmt'])
+            for record_number, record in enumerate(block):
+                if record[0]:
+                    res.append([block_number, record_number])
+
+        return res
+
+    def get_single_record_with_blocknum(self, table_name, block_number, record_number):
+        record = self.buffer_manager.get_single_record_with_blocknum(table_name, block_number, record_number,
+                                                                     self.catalog_manager.meta_data[table_name]['record_size'],
+                                                                     self.catalog_manager.meta_data[table_name]['fmt'])
+        return record
+

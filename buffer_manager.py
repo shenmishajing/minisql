@@ -90,6 +90,9 @@ class BufferManager:
         block_number, record_number, _ = self.find_block_number(record_number, record_size)
         return self.get_record_by_block(table_name, block_number, record_number, record_size, fmt)
 
+    def get_single_record_with_blocknum(self, table_name, block_number, record_number, record_size, fmt):
+        return self.get_record_by_block(table_name, block_number, record_number, record_size, fmt)
+
     def create_block(self, table_name, block_number, record_size, fmt):
         if self.current_block_number + 1 > self.memory_size:
             self.swap_block(record_size, fmt)
