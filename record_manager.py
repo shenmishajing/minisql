@@ -48,24 +48,29 @@ class RecordManager:
             for i in range(1, num_records):
                 self.catalog_manager.meta_data[table_name]['invaild_list'].append((block_number, i))
 
-        try:
-            for atr in self.catalog_manager.meta_data[table_name]['index']:
-                # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
-                #                                                                 (block_number, record_number))
+        atr_list = []
+        for atr in self.catalog_manager.meta_data[table_name]['index']:
+            try:
+            # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
+            #                                                                 (block_number, record_number))
                 index_name = self.catalog_manager.meta_data[table_name]['index'][atr]
                 self.index_manager.insert(index_name, record[atr + 1], (block_number, record_number))
-        except AssertionError as e:
-            print(e)
-            for atr in self.catalog_manager.meta_data[table_name]['index']:
-                # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
-                #                                                                 (block_number, record_number))
-                index_name = self.catalog_manager.meta_data[table_name]['index'][atr]
-                self.index_manager.delete(index_name, record[atr + 1], (block_number, record_number))
-        else:
-            block['change'] = True
-            block['pin'] = True
-            block['block'][record_number] = record
-            block['pin'] = False
+                atr_list.append(atr)
+            except AssertionError as e:
+                print(e)
+                print('atr_list=', atr_list)
+                for atr in atr_list:
+                    # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
+                    #                                                                 (block_number, record_number))
+                    index_name = self.catalog_manager.meta_data[table_name]['index'][atr]
+                    #self.index_manager.delete(index_name, record[atr + 1], (block_number, record_number))
+                    self.index_manager.delete(index_name, record[atr + 1])
+                break
+            else:
+                block['change'] = True
+                block['pin'] = True
+                block['block'][record_number] = record
+                block['pin'] = False
 
     def delete(self, table_name, record_number):
         block_number, record_number, num_records = self.buffer_manager.find_block_number(record_number,

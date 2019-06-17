@@ -24,6 +24,7 @@ class TreeNode:
     def insert_value(self, key, pointer):
         index = 0
         for k in self.keys:
+            assert key != k, '存在相同的key，无法插入'
             if key < k:
                 break
             index += 1
@@ -32,11 +33,6 @@ class TreeNode:
 
     def length(self):
         return len(self.keys)
-
-    def __del__(self):
-        print("Node Released")
-        self.keys.clear()
-        self.pointers.clear()
 
 
 class BPlusTree:

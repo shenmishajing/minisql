@@ -63,6 +63,8 @@ class CatalogManager:
         self.index_map.update(index_name)
 
     def drop_index(self, index_name):
+        if index_name not in self.index_map.keys():
+            return
         table_name, atr_index = self.index_map[index_name]
         del self.index_map[index_name]
         del self.meta_data[table_name]['index'][atr_index]

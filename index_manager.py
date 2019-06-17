@@ -16,7 +16,7 @@ class IndexManager:
     def create_index(self, index_name, type_size):
         if self.__check_available(index_name):
             return
-        size = self.__block_size // (type_size + 8)
+        size = max(self.__block_size // (type_size + 8), 3)
         self.__bplustrees[index_name] = bplustree.BPlusTree(size)
 
     def insert(self, index_name, key, pointer):

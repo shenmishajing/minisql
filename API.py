@@ -73,7 +73,7 @@ class API:
     def __parse_conditions(self, table_name, conditions: list):
         result = {}
         atributes = self.record_manager.catalog_manager.meta_data[table_name]['atr']
-        test = {'stu': {'atr': [{'name': 'name', 'type': 10, 'unique': 1}, {'name': 'age', 'type': 0, 'unique': 0}], 'prime_key': 0, 'index': {0: 12}}}
+        #test = {'stu': {'atr': [{'name': 'name', 'type': 10, 'unique': 1}, {'name': 'age', 'type': 0, 'unique': 0}], 'prime_key': 0, 'index': {0: 12}}}
         #atributes = test[table_name]['atr']
         for condition in conditions:
             condition = condition.split()
@@ -107,6 +107,13 @@ class API:
                     type_size = temp['type']
                 break
             art_index += 1
+        if art_index == len(self.record_manager.catalog_manager.meta_data[table_name]['atr']):
+            print('属性不存在')
+            return
+        if self.record_manager.catalog_manager.meta_data[table_name]['atr'][art_index] != 1:
+            print('非unique属性无法建立索引')
+            return
+
         self.record_manager.index_manager.create_index(index_name, type_size)
         self.record_manager.catalog_manager.create_index(table_name, {art_index: index_name},
                                                          {index_name: (table_name, art_index)})
@@ -157,7 +164,16 @@ class API:
 
     def get_record_by_block(self, table_name, block_number, record_number):
         record = self.record_manager.get_record_by_block(table_name, block_number, record_number)
-        return record[1:]
+        return record
+
+    def get_tables_names(self):
+        return self.record_manager.catalog_manager.meta_data.keys()
+
+    def get_atr_table(self, table_name):
+        if table_name in self.record_manager.catalog_manager.meta_data.keys():
+            return self.record_manager.catalog_manager.meta_data[table_name]['atr']
+        else:
+            return None
 
     def parse_sql(self, sql: str):
         sql = sql.replace('\n', ' ').replace('\t', '')
