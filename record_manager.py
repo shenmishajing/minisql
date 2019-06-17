@@ -54,28 +54,28 @@ class RecordManager:
         block['pin'] = False
 
         for atr in self.catalog_manager.meta_data[table_name]['index']:
-            #self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
-                                                                            #(block_number, record_number))
+            # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
+            #                                                                 (block_number, record_number))
             index_name = self.catalog_manager.meta_data[table_name]['index'][atr]
-            self.index_manager.insert(index_name, record[atr+1], (block_number, record_number))
+            self.index_manager.insert(index_name, record[atr + 1], (block_number, record_number))
 
     def delete(self, table_name, record_number):
         block_number, record_number, num_records = self.buffer_manager.find_block_number(record_number,
                                                                                          self.catalog_manager.meta_data[
                                                                                              table_name]['record_size'])
-        #block = self.buffer_manager.get_block(table_name, block_number,
-                                              #self.catalog_manager.meta_data[table_name]['record_size'],
-                                              #self.catalog_manager.meta_data[table_name]['fmt'])
-        #block['change'] = True
-        #block['pin'] = True
-        #block['block'][record_number][0] = False
-        #block['pin'] = False
-
-        #self.catalog_manager.meta_data[table_name]['invaild_list'].append((block_number, record_number))
-
-        #for atr in self.catalog_manager.meta_data[table_name]['index']:
-            #self.catalog_manager.meta_data[table_name]['index'][atr].delete(block['block'][record_number][atr + 1])
-        self.delete_with_blocknum(table_name,block_number,record_number)
+        # block = self.buffer_manager.get_block(table_name, block_number,
+        #                                       self.catalog_manager.meta_data[table_name]['record_size'],
+        #                                       self.catalog_manager.meta_data[table_name]['fmt'])
+        # block['change'] = True
+        # block['pin'] = True
+        # block['block'][record_number][0] = False
+        # block['pin'] = False
+        #
+        # self.catalog_manager.meta_data[table_name]['invaild_list'].append((block_number, record_number))
+        #
+        # for atr in self.catalog_manager.meta_data[table_name]['index']:
+        #     self.catalog_manager.meta_data[table_name]['index'][atr].delete(block['block'][record_number][atr + 1])
+        self.delete_with_blocknum(table_name, block_number, record_number)
 
     def delete_with_blocknum(self, table_name, block_number, record_number):
         block = self.buffer_manager.get_block(table_name, block_number,
@@ -280,10 +280,10 @@ class RecordManager:
         best_search_key, search_range = self.calculate_search_key(table_name, find_commands)
 
         if best_search_key:
-            #index_manager = self.catalog_manager.meta_data[table_name]['index'][best_search_key]
-            #_, node, pointer_index = index_manager.find()
+            # index_manager = self.catalog_manager.meta_data[table_name]['index'][best_search_key]
+            # _, node, pointer_index = index_manager.find()
             index_name = self.catalog_manager.meta_data[table_name]['index'][best_search_key]
-            _, node, pointer_index = self.index_manager.find(index_name, '?') #这一行存在严重问题,缺少搜索条件
+            _, node, pointer_index = self.index_manager.find(index_name, '?')  # 这一行存在严重问题,缺少搜索条件
             while node:
                 for i in range(pointer_index, len(node.pointers)):
                     block_number, record_number = node.pointers[i]
@@ -301,13 +301,13 @@ class RecordManager:
                 pointer_index = 0
         else:
             res = self.find(table_name)
-            #for block_number in range(self.catalog_manager.meta_data[table_name]['size']):#遍历所有的block
-                #block = self.buffer_manager.get_block(table_name, block_number,
-                                                      #self.catalog_manager.meta_data[table_name]['record_size'],
-                                                      #self.catalog_manager.meta_data[table_name]['fmt'])
-                #for record_number, record in enumerate(block):
-                    #if record[0] and self.calculate_consistent(record, search_range):
-                        #res.append([block_number, record_number])
+            # for block_number in range(self.catalog_manager.meta_data[table_name]['size']):#遍历所有的block
+            #     block = self.buffer_manager.get_block(table_name, block_number,
+            #                                           self.catalog_manager.meta_data[table_name]['record_size'],
+            #                                           self.catalog_manager.meta_data[table_name]['fmt'])
+            #     for record_number, record in enumerate(block):
+            #         if record[0] and self.calculate_consistent(record, search_range):
+            #             res.append([block_number, record_number])
 
         return res
 
@@ -325,7 +325,8 @@ class RecordManager:
 
     def get_single_record_with_blocknum(self, table_name, block_number, record_number):
         record = self.buffer_manager.get_single_record_with_blocknum(table_name, block_number, record_number,
-                                                                     self.catalog_manager.meta_data[table_name]['record_size'],
+                                                                     self.catalog_manager.meta_data[table_name][
+                                                                         'record_size'],
                                                                      self.catalog_manager.meta_data[table_name]['fmt'])
         return record
 

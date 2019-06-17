@@ -98,12 +98,16 @@ class BufferManager:
             self.swap_block(record_size, fmt)
         else:
             self.current_block_number += 1
-
+        if table_name not in self.buffer:
+            self.buffer[table_name] = {}
         self.buffer[table_name][block_number] = {}
         self.buffer[table_name][block_number]['change'] = False
         self.buffer[table_name][block_number]['pin'] = False
         self.buffer[table_name][block_number]['time'] = self.current_block_used_time
         self.buffer[table_name][block_number]['block'] = []
+        num_records = self.block_size // record_size
+        for i in range(num_records):
+            self.buffer[table_name][block_number]['block'].append([])
         return self.buffer[table_name][block_number]
 
     def change_block(self, table_name, block_number):
