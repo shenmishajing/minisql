@@ -11,7 +11,7 @@ class RecordManager:
         self.memory_size = memory_size
         self.work_dir = work_dir
         self.catalog_manager = catalog_manager.CatalogManager(work_dir)
-        #self.index_manager = index_manager.IndexManager(block_size)
+        # self.index_manager = index_manager.IndexManager(block_size)
         if os.path.exists('./IndexManager.obj'):
             with open('./IndexManager.obj', 'rb') as f:
                 self.index_manager = pickle.load(f)
@@ -89,10 +89,9 @@ class RecordManager:
         self.catalog_manager.meta_data[table_name]['invaild_list'].append((block_number, record_number))
 
         for atr in self.catalog_manager.meta_data[table_name]['index']:
-            #self.catalog_manager.meta_data[table_name]['index'][atr].delete(block['block'][record_number][atr + 1])
+            # self.catalog_manager.meta_data[table_name]['index'][atr].delete(block['block'][record_number][atr + 1])
             index_name = self.catalog_manager.meta_data[table_name]['index'][atr]
             self.index_manager.delete(index_name, block['block'][record_number][atr + 1])
-
 
     def calculate_search_range_percentage(self, atr, search_range):
         if atr['type'] == 0:
@@ -283,7 +282,7 @@ class RecordManager:
             # index_manager = self.catalog_manager.meta_data[table_name]['index'][best_search_key]
             # _, node, pointer_index = index_manager.find()
             index_name = self.catalog_manager.meta_data[table_name]['index'][best_search_key]
-            _, node, pointer_index = self.index_manager.find(index_name, '?')  # 这一行存在严重问题,缺少搜索条件
+            _, node, pointer_index = self.index_manager.find(index_name, search_range[1])
             while node:
                 for i in range(pointer_index, len(node.pointers)):
                     block_number, record_number = node.pointers[i]
@@ -333,7 +332,3 @@ class RecordManager:
     def __del__(self):
         with open('./IndexManager.obj', 'wb') as f:
             pickle.dump(self.index_manager, f)
-
-
-
-
