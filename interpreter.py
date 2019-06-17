@@ -115,13 +115,13 @@ def parse_sql(api, sql):
                 rec_block = api.select_records(table_name, conditions)
                 print(len(rec_block))
                 for block_number, record_number in rec_block:
-                    print(api.get_single_record(table_name, block_number, record_number))
+                    print(api.get_record_by_block(table_name, block_number, record_number))
         else:
             conditions = []
             rec_block = api.select_records(table_name, conditions)
             print(len(rec_block))
             for block_number, record_number in rec_block:
-                print(api.get_single_record(table_name, block_number, record_number))
+                print(api.get_record_by_block(table_name, block_number, record_number))
 
 
 

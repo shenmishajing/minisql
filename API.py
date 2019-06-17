@@ -155,8 +155,8 @@ class API:
             rec_block = self.record_manager.find(table_name, con)
         return rec_block
 
-    def get_single_record(self, table_name, block_number, record_number):
-        record = self.record_manager.get_single_record_with_blocknum(table_name, block_number, record_number)
+    def get_record_by_block(self, table_name, block_number, record_number):
+        record = self.record_manager.get_record_by_block(table_name, block_number, record_number)
         return record[1:]
 
     def parse_sql(self, sql: str):
@@ -249,12 +249,12 @@ class API:
                     con = self.__parse_conditions(table_name, conditions)
                     rec_block = self.record_manager.find(table_name, con)
                     for rec in rec_block:
-                        record = self.record_manager.get_single_record_with_blocknum(table_name, rec[0], rec[1])
+                        record = self.record_manager.get_record_by_block(table_name, rec[0], rec[1])
                         print(record[1:])
             else:
                 rec_block = self.record_manager.find_all_records(table_name)
                 for rec in rec_block:
-                    record = self.record_manager.get_single_record_with_blocknum(table_name, rec[0], rec[1])
+                    record = self.record_manager.get_record_by_block(table_name, rec[0], rec[1])
                     print(record[1:])
 
 

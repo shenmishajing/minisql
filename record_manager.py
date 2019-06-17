@@ -322,11 +322,11 @@ class RecordManager:
 
         return res
 
-    def get_single_record_with_blocknum(self, table_name, block_number, record_number):
-        record = self.buffer_manager.get_single_record_with_blocknum(table_name, block_number, record_number,
-                                                                     self.catalog_manager.meta_data[table_name][
-                                                                         'record_size'],
-                                                                     self.catalog_manager.meta_data[table_name]['fmt'])
+    def get_record_by_block(self, table_name, block_number, record_number):
+        record = self.buffer_manager.get_record_by_block(table_name, block_number, record_number,
+                                                         self.catalog_manager.meta_data[table_name][
+                                                             'record_size'],
+                                                         self.catalog_manager.meta_data[table_name]['fmt'])
         return record
 
     def __del__(self):
