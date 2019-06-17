@@ -60,8 +60,8 @@ class API:
         print(art)
         content['atr'] = art
         content['prime_key'] = primary_key
-        m = self.__block_size // (type_size + 8) #key大小加上pointer的大小
-        index[primary_key] = index_manager.IndexManager(m)
+        #m = self.__block_size // (type_size + 8) #key大小加上pointer的大小
+        index[primary_key] = index_manager.IndexManager(self.__block_size, type_size)
         content['index'] = index
         table[table_name] = content
         print(table)
@@ -70,7 +70,7 @@ class API:
     def __parse_conditions(self, table_name, conditions: list):
         result = {}
         atributes = self.record_manager.catalog_manager.meta_data[table_name]['atr']
-        #test = {'stu': {'atr': [{'name': 'name', 'type': 10, 'unique': 1}, {'name': 'age', 'type': 0, 'unique': 0}], 'prime_key': 0, 'index': {0: 12}}}
+        test = {'stu': {'atr': [{'name': 'name', 'type': 10, 'unique': 1}, {'name': 'age', 'type': 0, 'unique': 0}], 'prime_key': 0, 'index': {0: 12}}}
         #atributes = test[table_name]['atr']
         for condition in conditions:
             condition = condition.split()
@@ -93,8 +93,35 @@ class API:
         print(result)
         return result
 
-    def exec_sql(self, sql):
-        pass
+    def create_index(self, table_name, index_name, artribute_name):
+        if artribute_name in self.record_manager.catalog_manager.meta_data[table_name]['index'].keys():
+            return
+        art_index = 0
+        type_size = 4
+        for temp in self.record_manager.catalog_manager.meta_data[table_name]['atr']:
+            if temp['name'] == artribute_name:
+                if temp['type'] != 0 and temp['type'] != -1:
+                    type_size = temp['type']
+                break
+            art_index += 1
+        index = index_manager.IndexManager(self.__block_size, type_size)
+        #self.record_manager.catalog_manager.meta_data[table_name]['index'][index_name] = index
+        for block_number in range(self.record_manager.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
+            block = self.record_manager.buffer_manager.get_block(table_name, block_number,
+                                            self.record_manager.catalog_manager.meta_data[table_name]['record_size'],
+                                            self.record_manager.catalog_manager.meta_data[table_name]['fmt'])
+            for record_number, record in enumerate(block):
+                if record[0]:
+                    index.insert(record[art_index + 1], (block_number, record_number))
+        index_map = {artribute_name: index}
+        self.record_manager.catalog_manager.create_index(table_name,)
+
+    def drop_index(self, table_name, index_name):
+        if index_name not in self.record_manager.catalog_manager.meta_data[table_name]['index'].keys():
+            return
+        index = self.record_manager.catalog_manager.meta_data[table_name]['index'][index_name]
+        del index
+        self.record_manager.catalog_manager.meta_data[table_name]['index'].pop(index_name)
 
     def parse_sql(self, sql:str):
         sql = sql.replace('\n', ' ').replace('\t', '')
@@ -127,6 +154,7 @@ class API:
                 artribute_name = artribute_name.replace(' ', '')
                 print(artribute_name)
                 #self.create_index()
+                self.create_index(table_name, artribute_name)
                 #这里还存在问题
 
         elif command == 'drop':
@@ -134,6 +162,8 @@ class API:
             if command_type == 'index':
                 index_name = sql_strs[2]
                 #self.drop_index()
+                table_name = sql_strs[4]
+                self.drop_index(table_name, index_name)
             elif command_type == 'table':
                 table_name = sql_strs[2]
                 self.record_manager.drop_table(table_name)

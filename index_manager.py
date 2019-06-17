@@ -3,7 +3,8 @@ import bplustree
 
 class IndexManager:
 
-    def __init__(self, size = 3):
+    def __init__(self, block_size, record_size):
+        size = block_size // (record_size + 8)
         self.__bplustree = bplustree.BPlusTree(size)
 
     def insert(self, key, pointer):
