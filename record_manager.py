@@ -50,9 +50,9 @@ class RecordManager:
                                                                             (block_number, record_number))
 
     def delete(self, table_name, record_number):
-        block_number, record_number, num_records = self.find_block_number(record_number,
-                                                                          self.catalog_manager.meta_data[table_name][
-                                                                              'record_size'])
+        block_number, record_number, num_records = self.buffer_manager.find_block_number(record_number,
+                                                                                         self.catalog_manager.meta_data[
+                                                                                             table_name]['record_size'])
         block = self.buffer_manager.get_block(table_name, block_number,
                                               self.catalog_manager.meta_data[table_name]['record_size'],
                                               self.catalog_manager.meta_data[table_name]['fmt'])
