@@ -1,4 +1,5 @@
 import os
+import pickle
 import catalog_manager
 import buffer_manager
 import index_manager
@@ -10,7 +11,12 @@ class RecordManager:
         self.memory_size = memory_size
         self.work_dir = work_dir
         self.catalog_manager = catalog_manager.CatalogManager(work_dir)
-        self.index_manager = index_manager.IndexManager(block_size)
+        #self.index_manager = index_manager.IndexManager(block_size)
+        if os.path.exists('./IndexManager.obj'):
+            with open('./IndexManager.obj', 'rb') as f:
+                self.index_manager = pickle.load(f)
+        else:
+            self.index_manager = index_manager.IndexManager(block_size)
         self.buffer_manager = buffer_manager.BufferManager(block_size, memory_size, work_dir)
 
     def create_table(self, table_map):
@@ -323,8 +329,9 @@ class RecordManager:
                                                                      self.catalog_manager.meta_data[table_name]['fmt'])
         return record
 
-
-
+    def __del__(self):
+        with open('./IndexManager.obj', 'wb') as f:
+            pickle.dump(self.index_manager, f)
 
 
 
