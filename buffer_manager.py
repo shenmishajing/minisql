@@ -17,22 +17,18 @@ class BufferManager:
         record_number %= num_records
         return block_number, record_number, num_records
 
-    def write_block(self, table_name, block_number):
+    def write_block(self, table_name, block_number, fmt):
         assert table_name in self.buffer, '要写入的块不在内存中'
         assert block_number in self.buffer[table_name], '要写入的块不在内存中'
         assert not self.buffer[table_name][block_number]['pin'], '要写入的块被 pin 了'
         block = b''
         for i, record in enumerate(self.buffer[table_name][block_number]['block']):
             if record:
-                for item in record:
+                for item, f in zip(record, fmt):
                     if type(item) == str:
-                        block += item.encode()
-                    elif type(item) == int:
-                        b = struct.pack('i', item)
-                        block += b
-                    elif type(item) == float:
-                        b = struct.pack('f', item)
-                        block += b
+                        block += struct.pack(f, item.encode())
+                    else:
+                        block += struct.pack(f, item)
         if len(block) < self.block_size:
             block += b'\x00' * (self.block_size - len(block))
         table_file = open(self.work_dir + '/' + table_name, 'wb+')
@@ -41,7 +37,7 @@ class BufferManager:
         self.buffer[table_name][block_number]['change'] = False
         table_file.close()
 
-    def swap_block(self):
+    def swap_block(self, fmt):
         last_min_time = self.current_block_used_time
         min_time = self.current_block_used_time
         min_table_name = None
@@ -62,7 +58,7 @@ class BufferManager:
                     self.buffer[table_name][block_number]['time'] -= last_min_time
             self.current_block_used_time -= last_min_time
 
-        self.write_block(min_table_name, min_block_number)
+        self.write_block(min_table_name, min_block_number, fmt)
 
     def get_block(self, table_name, block_number, record_size, fmt):
         num_records = self.block_size // record_size
@@ -70,7 +66,7 @@ class BufferManager:
             self.buffer[table_name] = {}
         if block_number not in self.buffer[table_name]:
             if self.current_block_number + 1 > self.memory_size:
-                self.swap_block()
+                self.swap_block(fmt)
             else:
                 self.current_block_number += 1
 
@@ -96,6 +92,7 @@ class BufferManager:
                         current_pointer += 4
                     else:
                         item, = struct.unpack(f, block[current_pointer:current_pointer + int(f[:-1])])
+                        item = item.decode()[:item.find(b'\x00')]
                         current_pointer += int(f[:-1])
                     record.append(item)
                 self.buffer[table_name][block_number]['block'].append(record)
