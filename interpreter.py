@@ -1,3 +1,4 @@
+import os
 import API
 
 
@@ -29,6 +30,17 @@ def get_command():
         print('      -> ', end='')
         string = input()
     return command
+
+
+def execute_commands(api, file_name):
+    if os.path.exists(file_name):
+        file = open(file_name, 'r')
+        for line in file:
+            line = line[:line.find(';')]
+            print(line)
+            parse_sql(api, line)
+    else:
+        print('文件不存在')
 
 
 def parse_sql(api, sql):
@@ -125,6 +137,11 @@ def parse_sql(api, sql):
                 print(api.get_record_by_block(table_name, block_number, record_number))
     elif command == 'quit':
         api.record_manager.__del__();
+
+    elif command == 'execute':
+        file_name = sql_strs[1]
+        execute_commands(api, file_name)
+
 
 
 def main():
