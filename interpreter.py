@@ -30,6 +30,7 @@ def get_command():
         string = input()
     return command
 
+
 def parse_sql(api, sql):
     sql = sql.replace('\n', ' ').replace('\t', '')
     print(sql)
@@ -122,7 +123,8 @@ def parse_sql(api, sql):
             print(len(rec_block))
             for block_number, record_number in rec_block:
                 print(api.get_record_by_block(table_name, block_number, record_number))
-
+    elif command == 'quit':
+        api.record_manager.__del__();
 
 
 def main():
@@ -132,7 +134,7 @@ def main():
     while command != 'quit':
         command = get_command()
         print(command)
-        #print(api.exec_sql(command))
+        # print(api.exec_sql(command))
         parse_sql(api, command)
 
 

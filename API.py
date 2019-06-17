@@ -136,13 +136,13 @@ class API:
             records = self.record_manager.find_all_records(table_name)
             for rec in records:
                 # self.record_manager.delete(table_name, rec[1])
-                self.record_manager.delete_with_blocknum(table_name, rec[0], rec[1])
+                self.record_manager.delete_by_block(table_name, rec[0], rec[1])
         else:
             con = self.__parse_conditions(table_name, conditions)
             records = self.record_manager.find(table_name, con)
             for rec in records:
                 # self.record_manager.delete(table_name, rec[1])
-                self.record_manager.delete_with_blocknum(table_name, rec[0], rec[1])
+                self.record_manager.delete_by_block(table_name, rec[0], rec[1])
 
     def insert_values(self, table_name, record):
         self.record_manager.inseret(table_name, record)
@@ -217,12 +217,12 @@ class API:
                     records = self.record_manager.find(table_name, con)
                     for rec in records:
                         #self.record_manager.delete(table_name, rec[1])
-                        self.record_manager.delete_with_blocknum(table_name, rec[0], rec[1])
+                        self.record_manager.delete_by_block(table_name, rec[0], rec[1])
             else:#若缺省条件
                 records = self.record_manager.find_all_records(table_name)
                 for rec in records:
                     #self.record_manager.delete(table_name, rec[1])
-                    self.record_manager.delete_with_blocknum(table_name, rec[0], rec[1])
+                    self.record_manager.delete_by_block(table_name, rec[0], rec[1])
 
         elif command == 'insert':
             assert sql_strs[1].lower() == 'into', 'SQL非法指令'
