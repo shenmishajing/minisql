@@ -1,6 +1,4 @@
-import re
 import record_manager
-import index_manager
 
 
 class API:
@@ -61,7 +59,12 @@ class API:
         content['atr'] = art
         content['prime_key'] = primary_key
         #m = self.__block_size // (type_size + 8) #key大小加上pointer的大小
-        index[primary_key] = index_manager.IndexManager(self.__block_size, type_size)
+        #index[primary_key] = index_manager.IndexManager(self.__block_size, type_size)
+        #index[primary_key] = 'primary_key_{}'.format(content['art'][primary_key]['name'])
+        index_name = '{}_{}'.format(table_name, content['atr'][primary_key]['name'])
+        index[primary_key] = index_name
+        self.record_manager.catalog_manager.index_map = {index_name: (table_name, primary_key)}
+        self.record_manager.index_manager.create_index(index_name, type_size)
         content['index'] = index
         table[table_name] = content
         print(table)
@@ -94,8 +97,8 @@ class API:
         return result
 
     def create_index(self, table_name, index_name, artribute_name):
-        if artribute_name in self.record_manager.catalog_manager.meta_data[table_name]['index'].keys():
-            return
+        #if artribute_name in self.record_manager.catalog_manager.meta_data[table_name]['index'].keys():
+            #return
         art_index = 0
         type_size = 4
         for temp in self.record_manager.catalog_manager.meta_data[table_name]['atr']:
@@ -104,7 +107,9 @@ class API:
                     type_size = temp['type']
                 break
             art_index += 1
-        index = index_manager.IndexManager(self.__block_size, type_size)
+        self.record_manager.index_manager.create_index(index_name, type_size)
+        self.record_manager.catalog_manager.create_index(table_name, {art_index: index_name},
+                                                         {index_name: (table_name, art_index)})
         #self.record_manager.catalog_manager.meta_data[table_name]['index'][index_name] = index
         for block_number in range(self.record_manager.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
             block = self.record_manager.buffer_manager.get_block(table_name, block_number,
@@ -112,18 +117,49 @@ class API:
                                             self.record_manager.catalog_manager.meta_data[table_name]['fmt'])
             for record_number, record in enumerate(block):
                 if record[0]:
-                    index.insert(record[art_index + 1], (block_number, record_number))
-        index_map = {artribute_name: index}
-        self.record_manager.catalog_manager.create_index(table_name,)
+                    self.record_manager.index_manager.insert(index_name, record[art_index + 1],
+                                                             (block_number, record_number))
 
-    def drop_index(self, table_name, index_name):
-        if index_name not in self.record_manager.catalog_manager.meta_data[table_name]['index'].keys():
-            return
-        index = self.record_manager.catalog_manager.meta_data[table_name]['index'][index_name]
-        del index
-        self.record_manager.catalog_manager.meta_data[table_name]['index'].pop(index_name)
+    def drop_index(self, index_name):
+        self.record_manager.index_manager.drop_index(index_name)
+        self.record_manager.catalog_manager.drop_index(index_name)
 
-    def parse_sql(self, sql:str):
+    def create_table(self, table_name, artribute_table):
+        table = self.__construct_table(table_name, artribute_table)
+        self.record_manager.create_table(table)
+
+    def drop_table(self, table_name):
+        self.record_manager.drop_table(table_name)
+
+    def delete_records(self, table_name, conditions):
+        if len(conditions) == 0:
+            records = self.record_manager.find_all_records(table_name)
+            for rec in records:
+                # self.record_manager.delete(table_name, rec[1])
+                self.record_manager.delete_with_blocknum(table_name, rec[0], rec[1])
+        else:
+            con = self.__parse_conditions(table_name, conditions)
+            records = self.record_manager.find(table_name, con)
+            for rec in records:
+                # self.record_manager.delete(table_name, rec[1])
+                self.record_manager.delete_with_blocknum(table_name, rec[0], rec[1])
+
+    def insert_values(self, table_name, record):
+        self.record_manager.inseret(table_name, record)
+
+    def select_records(self, table_name, conditions):
+        if len(conditions) == 0:
+            rec_block = self.record_manager.find_all_records(table_name)
+        else:
+            con = self.__parse_conditions(table_name, conditions)
+            rec_block = self.record_manager.find(table_name, con)
+        return rec_block
+
+    def get_single_record(self, table_name, block_number, record_number):
+        record = self.record_manager.get_single_record_with_blocknum(table_name, block_number, record_number)
+        return record[1:]
+
+    def parse_sql(self, sql: str):
         sql = sql.replace('\n', ' ').replace('\t', '')
         print(sql)
         sql_strs = sql.split()
@@ -154,7 +190,7 @@ class API:
                 artribute_name = artribute_name.replace(' ', '')
                 print(artribute_name)
                 #self.create_index()
-                self.create_index(table_name, artribute_name)
+                self.create_index(table_name, index_name, artribute_name)
                 #这里还存在问题
 
         elif command == 'drop':
@@ -162,11 +198,12 @@ class API:
             if command_type == 'index':
                 index_name = sql_strs[2]
                 #self.drop_index()
-                table_name = sql_strs[4]
-                self.drop_index(table_name, index_name)
+                #table_name = sql_strs[4]
+                self.drop_index(index_name)
             elif command_type == 'table':
                 table_name = sql_strs[2]
                 self.record_manager.drop_table(table_name)
+
         elif command == 'delete':
             assert sql_strs[1].lower() == 'from', 'SQL非法指令'
             table_name = sql_strs[2]
@@ -227,9 +264,9 @@ class API:
 
 
 
-api = API(512,1024)
-s = '''
-select * from std
-'''
+#api = API(512,1024)
+#s = '''
+#select * from std
+#'''
 
-api.parse_sql(s)
+#api.parse_sql(s)

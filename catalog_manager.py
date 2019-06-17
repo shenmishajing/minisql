@@ -2,8 +2,11 @@ class CatalogManager:
 
     def __init__(self, work_dir='.'):
         self.work_dir = work_dir
-        self.meta_data = {}
-        self.index_map = {}
+        #self.meta_data = {}
+        #self.index_map = {}
+        catalog_file = open(self.work_dir + '/catalog.txt', 'r')
+        self.meta_data = eval(catalog_file.readline())
+        self.index_map = eval(catalog_file.readline())
 
     def save(self):
         catalog_file = open(self.work_dir + '/catalog.txt', 'w')
@@ -46,6 +49,8 @@ class CatalogManager:
         self.meta_data.update(table_map)
 
     def drop_table(self, table_name):
+        for index in self.meta_data[table_name]['index']:
+            self.index_map.pop(self.meta_data[table_name]['index'][index])
         del self.meta_data[table_name]
 
     def create_index(self, table_name, index_map, index_name):
@@ -56,3 +61,6 @@ class CatalogManager:
         table_name, atr_index = self.index_map[index_name]
         del self.index_map[index_name]
         del self.meta_data[table_name]['index'][atr_index]
+
+    def __del__(self):
+        self.save()

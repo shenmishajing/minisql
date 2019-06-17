@@ -1,0 +1,2 @@
+{'stu': {'atr': [{'name': 'name', 'type': 10, 'unique': 1}, {'name': 'age', 'type': 0, 'unique': 0}], 'prime_key': 0, 'index': {0: 'stu_name', 1: 'temp'}, 'fmt': 'c10si', 'record_size': 15, 'invaild_list': [], 'size': 0}}
+{'stu_name': ('stu', 0), 'temp': ('stu', 1)}
