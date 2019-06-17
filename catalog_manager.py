@@ -3,14 +3,17 @@ class CatalogManager:
     def __init__(self, work_dir='.'):
         self.work_dir = work_dir
         self.meta_data = {}
+        self.index_map = {}
 
     def save(self):
         catalog_file = open(self.work_dir + '/catalog.txt', 'w')
-        catalog_file.write(str(self.meta_data))
+        catalog_file.write(str(self.meta_data) + '\n')
+        catalog_file.write(str(self.index_map) + '\n')
 
     def open(self):
         catalog_file = open(self.work_dir + '/catalog.txt', 'r')
         self.meta_data = eval(catalog_file.readline())
+        self.index_map = eval(catalog_file.readline())
 
     def create_table(self, table_map):
         for table_name in table_map:
@@ -45,8 +48,11 @@ class CatalogManager:
     def drop_table(self, table_name):
         del self.meta_data[table_name]
 
-    def create_index(self, table_name, index_map):
+    def create_index(self, table_name, index_map, index_name):
         self.meta_data[table_name]['index'].update(index_map)
+        self.index_map.update(index_name)
 
-    def drop_index(self, table_name, index_name):
-        del self.meta_data[table_name]['index'][index_name]
+    def drop_index(self, index_name):
+        table_name, atr_index = self.index_map[index_name]
+        del self.index_map[index_name]
+        del self.meta_data[table_name]['index'][atr_index]
