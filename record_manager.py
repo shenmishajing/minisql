@@ -30,6 +30,19 @@ class RecordManager:
         self.catalog_manager.drop_table(table_name)
 
     def inseret(self, table_name, record):
+        assert len(record) == len(self.catalog_manager.meta_data[table_name]['atr']), '插入值参数不足'
+        atr_table = self.catalog_manager.meta_data[table_name]['atr']
+        for i in range(0, len(record)):
+            if type(record[i]) == float:
+                type_value = -1
+                assert type_value == atr_table[i]['type'], '插入值与对应参数类型不同'
+            elif type(record[i]) == int:
+                type_value = 0
+                assert type_value == atr_table[i]['type'], '插入值与对应参数类型不同'
+            else:
+                type_value = len(record[i])
+                assert 0 < type_value <= atr_table[i]['type'], '输入字符串为空串或超过规定长度'
+
         record = (1,) + record
         num_records = self.block_size // self.catalog_manager.meta_data[table_name]['record_size']
         if self.catalog_manager.meta_data[table_name]['invaild_list']:

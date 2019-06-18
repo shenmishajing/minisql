@@ -132,6 +132,7 @@ class API:
         self.record_manager.catalog_manager.drop_index(index_name)
 
     def create_table(self, table_name, artribute_table):
+        assert table_name not in self.record_manager.catalog_manager.meta_data.keys(), 'table已存在'
         table = self.__construct_table(table_name, artribute_table)
         self.record_manager.create_table(table)
 
