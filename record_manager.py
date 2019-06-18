@@ -51,7 +51,6 @@ class RecordManager:
         num_records = self.block_size // self.catalog_manager.meta_data[table_name]['record_size']
         if self.catalog_manager.meta_data[table_name]['invaild_list']:
             block_number, record_number = self.catalog_manager.meta_data[table_name]['invaild_list'][0]
-            del self.catalog_manager.meta_data[table_name]['invaild_list'][0]
             block = self.buffer_manager.get_block(table_name, block_number,
                                                   self.catalog_manager.meta_data[table_name]['record_size'],
                                                   self.catalog_manager.meta_data[table_name]['fmt'])
@@ -62,10 +61,11 @@ class RecordManager:
                                                      self.catalog_manager.meta_data[table_name]['record_size'],
                                                      self.catalog_manager.meta_data[table_name]['fmt'])
             record_number = 0
-            for i in range(1, num_records):
+            for i in range(num_records):
                 self.catalog_manager.meta_data[table_name]['invaild_list'].append((block_number, i))
 
         atr_list = []
+        insereted = True
         for atr in self.catalog_manager.meta_data[table_name]['index']:
             try:
                 # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
@@ -75,6 +75,7 @@ class RecordManager:
                 atr_list.append(atr)
             except AssertionError as e:
                 print(e)
+                insereted = False
                 # print('atr_list=', atr_list)
                 for atr in atr_list:
                     # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
@@ -82,11 +83,13 @@ class RecordManager:
                     index_name = self.catalog_manager.meta_data[table_name]['index'][atr]
                     # self.index_manager.delete(index_name, record[atr + 1], (block_number, record_number))
                     self.index_manager.delete(index_name, record[atr + 1])
-            else:
-                block['change'] = True
-                block['pin'] = True
-                block['block'][record_number] = list(record)
-                block['pin'] = False
+                break
+        if insereted:
+            block['change'] = True
+            block['pin'] = True
+            block['block'][record_number] = list(record)
+            block['pin'] = False
+            del self.catalog_manager.meta_data[table_name]['invaild_list'][0]
 
     def delete(self, table_name, record_number):
         block_number, record_number, num_records = self.buffer_manager.find_block_number(record_number,
@@ -132,11 +135,13 @@ class RecordManager:
             if search_range[1] is None and search_range[2] is None:
                 search_range_percentage = None
             elif search_range[1] is not None and search_range[2] is None:
-                search_range_percentage = 1
+                search_range_percentage = 1 - int.from_bytes(search_range[1], 'big') / (2 ** (atr['type'] * 8))
             elif search_range[1] is None and search_range[2] is not None:
                 search_range_percentage = None
             elif search_range[1] is not None and search_range[2] is not None:
-                search_range_percentage = 1
+                search_range_percentage = (int.from_bytes(search_range[1], 'big') - int.from_bytes(search_range[2],
+                                                                                                   'big')) / (
+                                                  2 ** (atr['type'] * 8))
 
         return search_range_percentage
 
@@ -301,17 +306,12 @@ class RecordManager:
 
         if best_search_key is not None:
             index_name = self.catalog_manager.meta_data[table_name]['index'][best_search_key]
-            if search_range[best_search_key]['range'][1] is None:
-                node = self.index_manager.get_head(index_name)
-                pointer_index = 0
-            else:
-                result = self.index_manager.find(index_name, search_range[best_search_key]['range'][1])
-                node = None
-                pointer_index = -1
-                if result is not None:
-                    node = result[1]
-                    pointer_index = result[2]
-            # self.index_manager.find(index_name,search_range[1])
+            result = self.index_manager.find(index_name, search_range[best_search_key]['range'][1])
+            node = None
+            pointer_index = -1
+            if result is not None:
+                node = result[1]
+                pointer_index = result[2]
             while node:
                 for i in range(pointer_index, len(node.pointers)):
                     block_number, record_number = node.pointers[i]
