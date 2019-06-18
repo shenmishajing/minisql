@@ -50,6 +50,9 @@ class BufferManager:
                     min_block_number = block_number
                     last_min_time = min_time
                     min_time = self.buffer[table_name][block_number]['time']
+                elif not self.buffer[table_name][block_number]['pin'] and self.buffer[table_name][block_number][
+                    'time'] < last_min_time:
+                    last_min_time = self.buffer[table_name][block_number]['time']
 
         if last_min_time > 10 ** 8:
             for table_name in self.buffer:
