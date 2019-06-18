@@ -2,7 +2,7 @@ import record_manager
 
 
 class API:
-    def __init__(self, block_size, memory_size, work_dir='.'):
+    def __init__(self, block_size, memory_size, work_dir = '.'):
         self.__block_size = block_size
         self.record_manager = record_manager.RecordManager(block_size, memory_size, work_dir)
 
@@ -73,8 +73,6 @@ class API:
     def __parse_conditions(self, table_name, conditions: list):
         result = {}
         atributes = self.record_manager.catalog_manager.meta_data[table_name]['atr']
-        # test = {'stu': {'atr': [{'name': 'name', 'type': 10, 'unique': 1}, {'name': 'age', 'type': 0, 'unique': 0}], 'prime_key': 0, 'index': {0: 12}}}
-        # atributes = test[table_name]['atr']
         for condition in conditions:
             condition = condition.split()
             art = condition[0]
@@ -209,8 +207,7 @@ class API:
                 artribute_name = artribute_name.replace(' ', '')
                 print(artribute_name)
                 # self.create_index()
-                self.create_index(table_name, index_name, artribute_name)
-                # 这里还存在问题
+                self.create_index(table_name, index_name, artribute_name)  # 这里还存在问题
 
         elif command == 'drop':
             command_type = sql_strs[1].lower()

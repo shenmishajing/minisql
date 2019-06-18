@@ -1,9 +1,8 @@
 import struct
-from ctypes import create_string_buffer
 
 
 class BufferManager:
-    def __init__(self, block_size, memory_size, work_dir='.'):
+    def __init__(self, block_size, memory_size, work_dir = '.'):
         self.work_dir = work_dir
         self.block_size = block_size
         self.memory_size = memory_size

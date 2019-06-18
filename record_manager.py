@@ -6,7 +6,7 @@ import index_manager
 
 
 class RecordManager:
-    def __init__(self, block_size, memory_size, work_dir='.'):
+    def __init__(self, block_size, memory_size, work_dir = '.'):
         self.block_size = block_size
         self.memory_size = memory_size
         self.work_dir = work_dir
@@ -109,29 +109,21 @@ class RecordManager:
         if atr['type'] == 0:
             if search_range[1] is None and search_range[2] is None:
                 search_range_percentage = 1
-            elif search_range[1] is not None and search_range[
-                2] is None:
+            elif search_range[1] is not None and search_range[2] is None:
                 search_range_percentage = (2 ** 31 - search_range[1]) / (2 ** 32)
-            elif search_range[1] is None and search_range[
-                2] is not None:
+            elif search_range[1] is None and search_range[2] is not None:
                 search_range_percentage = 2
-            elif search_range[1] is not None and search_range[
-                2] is not None:
-                search_range_percentage = (search_range[2] - search_range[
-                    1]) / (2 ** 32)
+            elif search_range[1] is not None and search_range[2] is not None:
+                search_range_percentage = (search_range[2] - search_range[1]) / (2 ** 32)
         elif atr['type'] == -1:
             if search_range[1] is None and search_range[2] is None:
                 search_range_percentage = 1
-            elif search_range[1] is not None and search_range[
-                2] is None:
+            elif search_range[1] is not None and search_range[2] is None:
                 search_range_percentage = (3.4E+38 - search_range[1]) / (6.8E+38)
-            elif search_range[1] is None and search_range[
-                2] is not None:
+            elif search_range[1] is None and search_range[2] is not None:
                 search_range_percentage = 2
-            elif search_range[1] is not None and search_range[
-                2] is not None:
-                search_range_percentage = (search_range[2] - search_range[
-                    1]) / (6.8E+38)
+            elif search_range[1] is not None and search_range[2] is not None:
+                search_range_percentage = (search_range[2] - search_range[1]) / (6.8E+38)
         else:
             search_range_percentage = 1
 
@@ -239,9 +231,8 @@ class RecordManager:
                                 best_search_range_percentage = search_range_percentage
                 elif command[0] == '<=':
                     assert search_range[atr_index]['range'][1] is None or search_range[atr_index]['range'][1] < command[
-                        1] or (
-                                   search_range[atr_index]['range'][0] and search_range[atr_index]['range'][1] ==
-                                   command[1]), '搜素范围冲突'
+                        1] or (search_range[atr_index]['range'][0] and search_range[atr_index]['range'][1] == command[
+                        1]), '搜素范围冲突'
                     if search_range[atr_index]['range'][2] is None or search_range[atr_index]['range'][2] > command[1]:
                         search_range[atr_index]['range'][2] = command[1]
                         search_range[atr_index]['range'][3] = 1
@@ -333,8 +324,7 @@ class RecordManager:
 
     def get_record_by_block(self, table_name, block_number, record_number):
         record = self.buffer_manager.get_record_by_block(table_name, block_number, record_number,
-                                                         self.catalog_manager.meta_data[table_name][
-                                                             'record_size'],
+                                                         self.catalog_manager.meta_data[table_name]['record_size'],
                                                          self.catalog_manager.meta_data[table_name]['fmt'])
         return record
 
