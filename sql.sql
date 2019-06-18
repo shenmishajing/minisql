@@ -1,3 +1,4 @@
+drop table stu;
 create table stu ( name char(10), age int, primary key ( name ));
 insert into stu values ('xiao', 12);
 insert into stu values ('aaaa', 10);

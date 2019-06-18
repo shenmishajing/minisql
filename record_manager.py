@@ -32,8 +32,6 @@ class RecordManager:
             self.index_manager.drop_index(index_name)
         self.catalog_manager.drop_table(table_name)
 
-
-
     def inseret(self, table_name, record):
         assert len(record) == len(self.catalog_manager.meta_data[table_name]['atr']), '插入值参数不足'
         atr_table = self.catalog_manager.meta_data[table_name]['atr']
@@ -309,7 +307,7 @@ class RecordManager:
                 block = self.buffer_manager.get_block(table_name, block_number,
                                                       self.catalog_manager.meta_data[table_name]['record_size'],
                                                       self.catalog_manager.meta_data[table_name]['fmt'])
-                for record_number, record in enumerate(block):
+                for record_number, record in enumerate(block['block']):
                     if record[0] and self.calculate_consistent(record, search_range):
                         res.append([block_number, record_number])
 
@@ -322,9 +320,7 @@ class RecordManager:
                                                   self.catalog_manager.meta_data[table_name]['record_size'],
                                                   self.catalog_manager.meta_data[table_name]['fmt'])
             for record_number, record in enumerate(block['block']):
-                # print(record)
-                # print(block)
-                if record[0] and self.calculate_consistent(record, {}):
+                if record[0]:
                     res.append([block_number, record_number])
 
         return res
