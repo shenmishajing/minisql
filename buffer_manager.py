@@ -92,7 +92,10 @@ class BufferManager:
                         current_pointer += 4
                     else:
                         item, = struct.unpack(f, block[current_pointer:current_pointer + int(f[:-1])])
-                        item = item.decode()[:item.find(b'\x00')]
+                        if b'\x00' in item:
+                            item = item.decode()[:item.find(b'\x00')]
+                        else:
+                            item = item.decode()
                         current_pointer += int(f[:-1])
                     record.append(item)
                 self.buffer[table_name][block_number]['block'].append(record)
