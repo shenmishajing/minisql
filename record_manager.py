@@ -21,12 +21,12 @@ class RecordManager:
 
     def create_table(self, table_map):
         for table_name in table_map:
-            table_file = open(self.work_dir + '/' + table_name, 'wb+')
+            table_file = open(self.work_dir + '/' + table_name + '.bin', 'wb+')
             table_file.close()
             self.catalog_manager.create_table(table_map)
 
     def drop_table(self, table_name):
-        os.remove(self.work_dir + '/' + table_name)
+        os.remove(self.work_dir + '/' + table_name + '.bin')
         self.catalog_manager.drop_table(table_name)
 
     def inseret(self, table_name, record):
