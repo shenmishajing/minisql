@@ -120,7 +120,7 @@ class BPlusTree:
     def delete(self, value):
         node = self.find_node(value)
         if node is not None:
-            print("in")
+            # print("in")
             self.__delete_entry(node, value)
 
     def find_node(self, value):  # 该函数返回最大的<=搜索元素的块，若index与keyindex相同，则利用B+树查找
@@ -146,12 +146,12 @@ class BPlusTree:
             found = False
             index =0
             for key in node.keys:
-                if key <= value:
+                if key >= value:
                     found = True
                     break
                 index += 1
             if found:
-                return (node.pointers[index], node, index)
+                return node.pointers[index], node, index
             else:
                 return None
 

@@ -1,5 +1,6 @@
 import os
 import API
+import time
 
 
 def find_last_str(s: str, string: str):
@@ -40,6 +41,7 @@ def execute_commands(api, file_name):
             if ';' in line:
                 command += line[:line.find(';')]
                 try:
+
                     parse_sql(api, command)
                 except AssertionError as e:
                     print(e)
@@ -53,7 +55,7 @@ def execute_commands(api, file_name):
 
 def parse_sql(api, sql):
     sql = sql.replace('\n', ' ').replace('\t', '')
-    print(sql)
+    # print(sql)
     sql_strs = sql.split()
     # print(sql_strs)
     command = sql_strs[0].lower()
@@ -106,10 +108,16 @@ def parse_sql(api, sql):
                 conditions = sql[start + 5:]
                 conditions = conditions.split('and')
                 # print(conditions)
+                start = time.time()
                 api.delete_records(table_name, conditions)
+                end = time.time()
+                print('指令耗时: {}s'.format(end - start))
         else:  # 若缺省条件
             conditions = []
+            start = time.time()
             api.delete_records(table_name, conditions)
+            end = time.time()
+            print('指令耗时: {}s'.format(end - start))
 
     elif command == 'insert':
         assert sql_strs[1].lower() == 'into', 'SQL非法指令'
@@ -120,7 +128,10 @@ def parse_sql(api, sql):
         record = list(eval(tuple_str))
         # print(tuple_str)
         # print(record)
+        start = time.time()
         api.insert_values(table_name, record)
+        end = time.time()
+        print('指令耗时: {}s'.format(end - start))
 
     elif command == 'select':
         assert sql_strs[1] == '*', 'minisql暂不支持非*查找'
@@ -133,18 +144,24 @@ def parse_sql(api, sql):
                 conditions = sql[start + 5:]
                 conditions = conditions.split('and')
                 # print(conditions)
+                start = time.time()
                 rec_block = api.select_records(table_name, conditions)
+                end = time.time()
+                print('指令耗时: {}s'.format(end - start))
                 # print(len(rec_block))
                 for block_number, record_number in rec_block:
                     record = api.get_record_by_block(table_name, block_number, record_number)
                     if record[0] == 1:
                         for i in range(1, len(record)):
-                            print(record[i], end = ' ')
+                            print(record[i], end=' ')
                         print()
         else:
             conditions = []
+            start = time.time()
             rec_block = api.select_records(table_name, conditions)
-            print(len(rec_block))
+            end = time.time()
+            print('指令耗时: {}s'.format(end - start))
+            # print(len(rec_block))
             for block_number, record_number in rec_block:
                 record = api.get_record_by_block(table_name, block_number, record_number)
                 for i in range(1, len(record)):
@@ -166,6 +183,12 @@ def parse_sql(api, sql):
             for name in api.get_tables_names():
                 print(name)
             print('-------------------')
+        elif sql_strs[1] == 'index':
+            print('Index')
+            print('-------------------')
+            index_list = api.get_index_table()
+            for index in index_list:
+                print("{}\t{:>10}\t{:>10}\t{:>10}".format(index[0], index[1], index[2], index[3]))
 
     elif command == 'desc':
         table_name = sql_strs[1]

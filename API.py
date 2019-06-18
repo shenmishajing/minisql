@@ -25,7 +25,7 @@ class API:
         for s in artribute_table:
             if 'primary key' in s:
                 pri = s.replace(')', '').split('(')[-1].replace(' ', '')
-                print(pri)
+                # print(pri)
                 for temp in art:
                     if pri == temp['name']:
                         temp['unique'] = 1
@@ -35,7 +35,7 @@ class API:
                     primary_key += 1
             else:
                 s_list = s.split()  # type:list[str]
-                print(s_list)
+                # print(s_list)
                 artribute = {}
                 name = s_list[0]
                 type = -1
@@ -55,7 +55,7 @@ class API:
                 artribute['type'] = type
                 artribute['unique'] = unique
                 art.append(artribute)
-        print(art)
+        # print(art)
         content['atr'] = art
         content['prime_key'] = primary_key
         # m = self.__block_size // (type_size + 8) #key大小加上pointer的大小
@@ -63,11 +63,11 @@ class API:
         # index[primary_key] = 'primary_key_{}'.format(content['art'][primary_key]['name'])
         index_name = '{}_{}'.format(table_name, content['atr'][primary_key]['name'])
         index[primary_key] = index_name
-        self.record_manager.catalog_manager.index_map = {index_name: (table_name, primary_key)}
+        self.record_manager.catalog_manager.index_map.update({index_name: (table_name, primary_key)})
         self.record_manager.index_manager.create_index(index_name, type_size)
         content['index'] = index
         table[table_name] = content
-        print(table)
+        # print(table)
         return table
 
     def __parse_conditions(self, table_name, conditions: list):
@@ -91,7 +91,7 @@ class API:
                 result[art].append((op, data))
             else:
                 result[art] = [(op, data)]
-        print(result)
+        # print(result)
         return result
 
     def create_index(self, table_name, index_name, artribute_name):
@@ -108,26 +108,36 @@ class API:
         if art_index == len(self.record_manager.catalog_manager.meta_data[table_name]['atr']):
             print('属性不存在')
             return
-        if self.record_manager.catalog_manager.meta_data[table_name]['atr'][art_index] != 1:
+        if self.record_manager.catalog_manager.meta_data[table_name]['atr'][art_index]['unique'] != 1:
             print('非unique属性无法建立索引')
             return
 
-        self.record_manager.index_manager.create_index(index_name, type_size)
-        self.record_manager.catalog_manager.create_index(table_name, {art_index: index_name},
-                                                         {index_name: (table_name, art_index)})
-        # self.record_manager.catalog_manager.meta_data[table_name]['index'][index_name] = index
-        for block_number in range(self.record_manager.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
-            block = self.record_manager.buffer_manager.get_block(table_name, block_number,
-                                                                 self.record_manager.catalog_manager.meta_data[
-                                                                     table_name]['record_size'],
-                                                                 self.record_manager.catalog_manager.meta_data[
-                                                                     table_name]['fmt'])
-            for record_number, record in enumerate(block):
-                if record[0]:
-                    self.record_manager.index_manager.insert(index_name, record[art_index + 1],
+        if art_index in self.record_manager.catalog_manager.meta_data[table_name]['index'].keys():
+            print('该属性已存在index')
+            return
+
+        callback = self.record_manager.index_manager.create_index(index_name, type_size)
+        if callback:
+            self.record_manager.catalog_manager.create_index(table_name, {art_index: index_name},
+                                                            {index_name: (table_name, art_index)})
+            # self.record_manager.catalog_manager.meta_data[table_name]['index'][index_name] = index
+            for block_number in range(self.record_manager.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
+                block = self.record_manager.buffer_manager.get_block(table_name, block_number,
+                                                                    self.record_manager.catalog_manager.meta_data[
+                                                                        table_name]['record_size'],
+                                                                    self.record_manager.catalog_manager.meta_data[
+                                                                        table_name]['fmt'])
+                for record_number, record in enumerate(block['block']):
+                    if record[0]:
+                        self.record_manager.index_manager.insert(index_name, record[art_index + 1],
                                                              (block_number, record_number))
 
     def drop_index(self, index_name):
+        if index_name in self.record_manager.catalog_manager.index_map.keys():
+            table_name = self.record_manager.catalog_manager.index_map[index_name][0]
+            atr_index = self.record_manager.catalog_manager.index_map[index_name][1]
+            assert atr_index != self.record_manager.catalog_manager.meta_data[table_name]['prime_key'],\
+                '无法对primary key的index进行删除'
         self.record_manager.index_manager.drop_index(index_name)
         self.record_manager.catalog_manager.drop_index(index_name)
 
@@ -175,6 +185,23 @@ class API:
             return self.record_manager.catalog_manager.meta_data[table_name]['atr']
         else:
             return None
+
+    def get_index_table(self):
+        rec = []
+        for index_name in self.record_manager.catalog_manager.index_map.keys():
+            table_name = self.record_manager.catalog_manager.index_map[index_name][0]
+            atr_index = self.record_manager.catalog_manager.index_map[index_name][1]
+            atr_table = self.record_manager.catalog_manager.meta_data[table_name]['atr']
+            atr_name = atr_table[atr_index]['name']
+            atr_type = atr_table[atr_index]['type']
+            if atr_type == -1:
+                type_str = 'float'
+            elif atr_type == 0:
+                type_str = 'int'
+            else:
+                type_str = 'char({})'.format(atr_type)
+            rec.append((index_name, table_name, atr_name, type_str))
+        return rec
 
     def parse_sql(self, sql: str):
         sql = sql.replace('\n', ' ').replace('\t', '')

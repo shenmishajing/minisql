@@ -26,7 +26,7 @@ class RecordManager:
             self.catalog_manager.create_table(table_map)
 
     def drop_table(self, table_name):
-        assert table_name in self.catalog_manager.meta_data
+        assert table_name in self.catalog_manager.meta_data, '删除的表不存在'
         os.remove(self.work_dir + '/' + table_name + '.bin')
         index_table = self.catalog_manager.meta_data[table_name]['index']  # type:dict
         for index_name in index_table.values():
@@ -75,7 +75,7 @@ class RecordManager:
                 atr_list.append(atr)
             except AssertionError as e:
                 print(e)
-                print('atr_list=', atr_list)
+                # print('atr_list=', atr_list)
                 for atr in atr_list:
                     # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
                     #                                                                 (block_number, record_number))
@@ -141,7 +141,7 @@ class RecordManager:
                 atr_index + 1]))) and (search_range[atr_index]['range'][2] is None or (
                     search_range[atr_index]['range'][2] > record[atr_index + 1] or (
                     search_range[atr_index]['range'][3] and search_range[atr_index]['range'][2] == record[
-                atr_index + 1])) and (record[atr_index + 1] not in search_range[atr_index]['unequal']))):
+                atr_index + 1]))) and (record[atr_index + 1] not in search_range[atr_index]['unequal'])):
                 return False
 
         return True
@@ -288,13 +288,23 @@ class RecordManager:
 
         best_search_key, search_range = self.calculate_search_key(table_name, find_commands)
 
-        if best_search_key:
+        if best_search_key is not None:
             index_name = self.catalog_manager.meta_data[table_name]['index'][best_search_key]
-            _, node, pointer_index = self.index_manager.find(index_name, search_range[1])
+            if search_range[best_search_key]['range'][1] is None:
+                node = self.index_manager.get_head(index_name)
+                pointer_index = 0
+            else:
+                result = self.index_manager.find(index_name, search_range[best_search_key]['range'][1])
+                node = None
+                pointer_index = -1
+                if result is not None:
+                    node = result[1]
+                    pointer_index = result[2]
+            # self.index_manager.find(index_name,search_range[1])
             while node:
                 for i in range(pointer_index, len(node.pointers)):
                     block_number, record_number = node.pointers[i]
-                    record = self.buffer_manager.get_record_by_block(table_name, block_number,
+                    record = self.buffer_manager.get_record_by_block(table_name, block_number, record_number,
                                                                      self.catalog_manager.meta_data[table_name][
                                                                          'record_size'],
                                                                      self.catalog_manager.meta_data[table_name]['fmt'])
