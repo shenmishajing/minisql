@@ -26,6 +26,7 @@ class RecordManager:
             self.catalog_manager.create_table(table_map)
 
     def drop_table(self, table_name):
+        assert table_name in self.catalog_manager.meta_data
         os.remove(self.work_dir + '/' + table_name + '.bin')
         index_table = self.catalog_manager.meta_data[table_name]['index']  # type:dict
         for index_name in index_table.values():
@@ -46,7 +47,7 @@ class RecordManager:
                 type_value = len(record[i])
                 assert 0 < type_value <= atr_table[i]['type'], '输入字符串为空串或超过规定长度'
 
-        record = (1,) + record
+        record = [1] + record
         num_records = self.block_size // self.catalog_manager.meta_data[table_name]['record_size']
         if self.catalog_manager.meta_data[table_name]['invaild_list']:
             block_number, record_number = self.catalog_manager.meta_data[table_name]['invaild_list'][0]
@@ -134,11 +135,13 @@ class RecordManager:
 
     def calculate_consistent(self, record, search_range):
         for atr_index in search_range:
-            if not ((search_range[atr_index]['range'][1] < record[atr_index + 1] or (
+            if not ((search_range[atr_index]['range'][1] is None or (
+                    search_range[atr_index]['range'][1] < record[atr_index + 1] or (
                     search_range[atr_index]['range'][0] and search_range[atr_index]['range'][1] == record[
-                atr_index + 1])) and (search_range[atr_index]['range'][2] > record[atr_index + 1] or (
+                atr_index + 1]))) and (search_range[atr_index]['range'][2] is None or (
+                    search_range[atr_index]['range'][2] > record[atr_index + 1] or (
                     search_range[atr_index]['range'][3] and search_range[atr_index]['range'][2] == record[
-                atr_index + 1])) and (record[atr_index + 1] not in search_range[atr_index]['unequal'])):
+                atr_index + 1])) and (record[atr_index + 1] not in search_range[atr_index]['unequal']))):
                 return False
 
         return True
@@ -153,7 +156,7 @@ class RecordManager:
                 if atr['name'] == key:
                     atr_index = i
                     break
-            assert atr_index, '搜索的 key 不存在'
+            assert atr_index is not None, '搜索的 key 不存在'
             if atr_index not in search_range:
                 search_range[atr_index] = {}
                 search_range[atr_index]['range'] = [1, None, None, 1]
@@ -256,7 +259,8 @@ class RecordManager:
                                 best_search_key = atr_index
                                 best_search_range_percentage = search_range_percentage
                 elif command[0] == '>=':
-                    assert search_range[atr_index]['range'][2] > command[1], '搜素范围冲突'
+                    assert search_range[atr_index]['range'][2] is None or search_range[atr_index]['range'][2] > command[
+                        1], '搜素范围冲突'
                     if search_range[atr_index]['range'][1] is None or search_range[atr_index]['range'][1] < command[1]:
                         search_range[atr_index]['range'][1] = command[1]
                         search_range[atr_index]['range'][0] = 1

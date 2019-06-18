@@ -246,7 +246,7 @@ class API:
             start = sql.lower().find('values')
             assert start != -1, 'SQL缺少values关键字'
             tuple_str = sql[start + 6:]
-            record = eval(tuple_str)
+            record = list(eval(tuple_str))
             # print(tuple_str)
             print(record)
             self.record_manager.inseret(table_name, record)

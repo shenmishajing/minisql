@@ -20,14 +20,14 @@ def print_welcome():
 
 def get_command():
     command = ''
-    print('minisql> ', end='')
+    print('minisql> ', end = '')
     string = input()
     while True:
         if ';' in string:
             command += string[:string.find(';')]
             break
         command += string
-        print('      -> ', end='')
+        print('      -> ', end = '')
         string = input()
     return command
 
@@ -35,10 +35,18 @@ def get_command():
 def execute_commands(api, file_name):
     if os.path.exists(file_name):
         file = open(file_name, 'r')
+        command = ''
         for line in file:
-            line = line[:line.find(';')]
+            if ';' in line:
+                command += line[:line.find(';')]
+                try:
+                    parse_sql(api, command)
+                except AssertionError as e:
+                    print(e)
+                command = ''
+            else:
+                command += line
             print(line)
-            parse_sql(api, line)
     else:
         print('文件不存在')
 
@@ -109,7 +117,7 @@ def parse_sql(api, sql):
         start = sql.lower().find('values')
         assert start != -1, 'SQL缺少values关键字'
         tuple_str = sql[start + 6:]
-        record = eval(tuple_str)
+        record = list(eval(tuple_str))
         # print(tuple_str)
         # print(record)
         api.insert_values(table_name, record)
@@ -131,7 +139,7 @@ def parse_sql(api, sql):
                     record = api.get_record_by_block(table_name, block_number, record_number)
                     if record[0] == 1:
                         for i in range(1, len(record)):
-                            print(record[i], end=' ')
+                            print(record[i], end = ' ')
                         print()
         else:
             conditions = []
@@ -140,7 +148,7 @@ def parse_sql(api, sql):
             for block_number, record_number in rec_block:
                 record = api.get_record_by_block(table_name, block_number, record_number)
                 for i in range(1, len(record)):
-                    print(record[i], end=' ')
+                    print(record[i], end = ' ')
                 print()
 
 
