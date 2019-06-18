@@ -310,9 +310,10 @@ class RecordManager:
                                                                      self.catalog_manager.meta_data[table_name]['fmt'])
                     if record[0] and self.calculate_consistent(record, search_range):
                         res.append([block_number, record_number])
-                    elif record[0] and not (record[best_search_key + 1] < search_range[best_search_key]['range'][2] or (
+                    elif record[0] and not (search_range[best_search_key]['range'][2] is None or (
+                            record[best_search_key + 1] < search_range[best_search_key]['range'][2] or (
                             search_range[best_search_key]['range'][3] and record[best_search_key + 1] ==
-                            search_range[best_search_key]['range'][2])):
+                            search_range[best_search_key]['range'][2]))):
                         break
                 node = node.next
                 pointer_index = 0

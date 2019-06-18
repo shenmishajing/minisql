@@ -41,8 +41,11 @@ def execute_commands(api, file_name):
             if ';' in line:
                 command += line[:line.find(';')]
                 try:
-
+                    print('start run command: ' + command)
+                    start = time.time()
                     parse_sql(api, command)
+                    end = time.time()
+                    print(f'finish in {end - start} s')
                 except AssertionError as e:
                     print(e)
                 command = ''
@@ -153,7 +156,7 @@ def parse_sql(api, sql):
                     record = api.get_record_by_block(table_name, block_number, record_number)
                     if record[0] == 1:
                         for i in range(1, len(record)):
-                            print(record[i], end=' ')
+                            print(record[i], end = ' ')
                         print()
         else:
             conditions = []
@@ -167,10 +170,6 @@ def parse_sql(api, sql):
                 for i in range(1, len(record)):
                     print(record[i], end = ' ')
                 print()
-
-
-    # elif command == 'quit':
-    #    api.record_manager.__del__();
 
     elif command == 'exec':
         file_name = sql_strs[1].replace(' ', '')
