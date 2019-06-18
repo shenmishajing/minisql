@@ -119,7 +119,7 @@ class RecordManager:
             elif search_range[1] is not None and search_range[2] is None:
                 search_range_percentage = (2 ** 31 - search_range[1]) / (2 ** 32)
             elif search_range[1] is None and search_range[2] is not None:
-                search_range_percentage = None
+                search_range_percentage = (2 ** 31 + search_range[2]) / (2 ** 32)
             elif search_range[1] is not None and search_range[2] is not None:
                 search_range_percentage = (search_range[2] - search_range[1]) / (2 ** 32)
         elif atr['type'] == -1:
@@ -128,7 +128,7 @@ class RecordManager:
             elif search_range[1] is not None and search_range[2] is None:
                 search_range_percentage = (3.4E+38 - search_range[1]) / (6.8E+38)
             elif search_range[1] is None and search_range[2] is not None:
-                search_range_percentage = None
+                search_range_percentage = (3.4E+38 + search_range[1]) / (6.8E+38)
             elif search_range[1] is not None and search_range[2] is not None:
                 search_range_percentage = (search_range[2] - search_range[1]) / (6.8E+38)
         else:
@@ -137,7 +137,7 @@ class RecordManager:
             elif search_range[1] is not None and search_range[2] is None:
                 search_range_percentage = 1 - int.from_bytes(search_range[1].encode(), 'big') / (2 ** (atr['type'] * 8))
             elif search_range[1] is None and search_range[2] is not None:
-                search_range_percentage = None
+                search_range_percentage = int.from_bytes(search_range[2].encode(), 'big') / (2 ** (atr['type'] * 8))
             elif search_range[1] is not None and search_range[2] is not None:
                 search_range_percentage = (int.from_bytes(search_range[1].encode(), 'big') - int.from_bytes(
                     search_range[2].encode(), 'big')) / (2 ** (atr['type'] * 8))
@@ -305,12 +305,17 @@ class RecordManager:
 
         if best_search_key is not None:
             index_name = self.catalog_manager.meta_data[table_name]['index'][best_search_key]
-            result = self.index_manager.find(index_name, search_range[best_search_key]['range'][1])
-            node = None
-            pointer_index = -1
-            if result is not None:
-                node = result[1]
-                pointer_index = result[2]
+            if search_range[best_search_key]['range'][1] is not None:
+                result = self.index_manager.find(index_name, search_range[best_search_key]['range'][1])
+                node = None
+                pointer_index = -1
+                if result is not None:
+                    node = result[1]
+                    pointer_index = result[2]
+            else:
+                node = self.index_manager.get_head(index_name)
+                pointer_index = 0
+            finish = False
             while node:
                 for i in range(pointer_index, len(node.pointers)):
                     block_number, record_number = node.pointers[i]
@@ -324,7 +329,10 @@ class RecordManager:
                             record[best_search_key + 1] < search_range[best_search_key]['range'][2] or (
                             search_range[best_search_key]['range'][3] and record[best_search_key + 1] ==
                             search_range[best_search_key]['range'][2]))):
+                        finish = True
                         break
+                if finish:
+                    break
                 node = node.next
                 pointer_index = 0
         else:
