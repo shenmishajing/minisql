@@ -37,6 +37,7 @@ def execute_commands(api, file_name):
     if os.path.exists(file_name):
         file = open(file_name, 'r')
         command = ''
+        start_file = time.time()
         for line in file:
             if ';' in line:
                 command += line[:line.find(';')]
@@ -51,6 +52,8 @@ def execute_commands(api, file_name):
                 command = ''
             else:
                 command += line
+        end_file = time.time()
+        print(f'exec file finish in {end_file - start_file} s')
     else:
         print('文件不存在')
 
@@ -129,7 +132,7 @@ def parse_sql(api, sql):
                     record = api.get_record_by_block(table_name, block_number, record_number)
                     if record[0] == 1:
                         for i in range(1, len(record)):
-                            print(record[i], end='\t')
+                            print(record[i], end = '\t')
                         print()
         else:
             conditions = []
@@ -137,7 +140,7 @@ def parse_sql(api, sql):
             for block_number, record_number in rec_block:
                 record = api.get_record_by_block(table_name, block_number, record_number)
                 for i in range(1, len(record)):
-                    print(record[i], end='\t')
+                    print(record[i], end = '\t')
                 print()
         print('-------------------')
 
