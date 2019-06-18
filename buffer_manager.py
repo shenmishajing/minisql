@@ -73,6 +73,7 @@ class BufferManager:
             self.buffer[table_name][block_number]['change'] = False
             self.buffer[table_name][block_number]['pin'] = False
             self.buffer[table_name][block_number]['time'] = self.current_block_used_time
+            self.current_block_used_time += 1
             self.buffer[table_name][block_number]['block'] = []
 
             table_file = open(self.work_dir + '/' + table_name + '.bin', 'rb')
@@ -108,7 +109,7 @@ class BufferManager:
 
     def create_block(self, table_name, block_number, record_size, fmt):
         if self.current_block_number + 1 > self.memory_size:
-            self.swap_block(record_size, fmt)
+            self.swap_block(fmt)
         else:
             self.current_block_number += 1
         if table_name not in self.buffer:
@@ -117,6 +118,7 @@ class BufferManager:
         self.buffer[table_name][block_number]['change'] = False
         self.buffer[table_name][block_number]['pin'] = False
         self.buffer[table_name][block_number]['time'] = self.current_block_used_time
+        self.current_block_used_time += 1
         self.buffer[table_name][block_number]['block'] = []
         num_records = self.block_size // record_size
         for i in range(num_records):
