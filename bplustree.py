@@ -97,7 +97,9 @@ class BPlusTree:
         if self.__root is None:  # 若树中还没有节点，则根既为内节点也为叶节点
             self.__root = TreeNode(self.__size)
             leaf_node = self.__root
+            leaf_node.insert_value(value, pointer)
             self.__data_ptr = leaf_node
+            return
         else:
             leaf_node = self.__find_insert_leaf(value)
         if not leaf_node.is_full():
@@ -159,7 +161,7 @@ class BPlusTree:
     def __find_insert_leaf(self, value):
         if self.__root is not None:
             current_node = self.__root  # type:TreeNode
-            while not current_node.is_leaf():
+            while type(current_node) == TreeNode and not current_node.is_leaf():
                 index = 0
                 for i in current_node.keys:
                     if value < i:
@@ -212,7 +214,7 @@ class BPlusTree:
             node.pointers.remove(child)
         else:
             node.pointers.remove(node.pointers[temp_index])
-        if node.parent is None and len(node.pointers) == 1:
+        if node.parent is None and len(node.pointers) == 1 and not node.is_leaf():
             self.__root = node.pointers[0]
             self.__root.parent = None
             del node
@@ -293,13 +295,13 @@ class BPlusTree:
                         temp_value = another_node.keys[0]
                         parent.keys[child_index] = temp_value
 
-'''
 
+'''
 bpt = BPlusTree(3) #type:BPlusTree
 n = 15
 for i in range(15, 0, -1):
     tp = random.randint(1, n**2)
-    bpt.insert(i, 0)
+    bpt.insert(i, (0, 0))
     # bpt.level_order()
 
 

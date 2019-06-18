@@ -27,7 +27,12 @@ class RecordManager:
 
     def drop_table(self, table_name):
         os.remove(self.work_dir + '/' + table_name + '.bin')
+        index_table = self.catalog_manager.meta_data[table_name]['index']  # type:dict
+        for index_name in index_table.values():
+            self.index_manager.drop_index(index_name)
         self.catalog_manager.drop_table(table_name)
+
+
 
     def inseret(self, table_name, record):
         assert len(record) == len(self.catalog_manager.meta_data[table_name]['atr']), '插入值参数不足'
@@ -81,7 +86,7 @@ class RecordManager:
             else:
                 block['change'] = True
                 block['pin'] = True
-                block['block'][record_number] = record
+                block['block'][record_number] = list(record)
                 block['pin'] = False
 
     def delete(self, table_name, record_number):
@@ -316,8 +321,10 @@ class RecordManager:
             block = self.buffer_manager.get_block(table_name, block_number,
                                                   self.catalog_manager.meta_data[table_name]['record_size'],
                                                   self.catalog_manager.meta_data[table_name]['fmt'])
-            for record_number, record in enumerate(block):
-                if record[0]:
+            for record_number, record in enumerate(block['block']):
+                # print(record)
+                # print(block)
+                if record[0] and self.calculate_consistent(record, {}):
                     res.append([block_number, record_number])
 
         return res

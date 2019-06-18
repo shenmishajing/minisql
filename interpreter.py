@@ -139,10 +139,10 @@ def parse_sql(api, sql):
             print(len(rec_block))
             for block_number, record_number in rec_block:
                 record = api.get_record_by_block(table_name, block_number, record_number)
-                if record[0] == 1:
-                    for i in range(1, len(record)):
-                        print(record[i], end=' ')
-                    print()
+                for i in range(1, len(record)):
+                    print(record[i], end=' ')
+                print()
+
 
     # elif command == 'quit':
     #    api.record_manager.__del__();
