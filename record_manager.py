@@ -64,8 +64,8 @@ class RecordManager:
         atr_list = []
         for atr in self.catalog_manager.meta_data[table_name]['index']:
             try:
-            # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
-            #                                                                 (block_number, record_number))
+                # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
+                #                                                                 (block_number, record_number))
                 index_name = self.catalog_manager.meta_data[table_name]['index'][atr]
                 self.index_manager.insert(index_name, record[atr + 1], (block_number, record_number))
                 atr_list.append(atr)
@@ -76,9 +76,8 @@ class RecordManager:
                     # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
                     #                                                                 (block_number, record_number))
                     index_name = self.catalog_manager.meta_data[table_name]['index'][atr]
-                    #self.index_manager.delete(index_name, record[atr + 1], (block_number, record_number))
+                    # self.index_manager.delete(index_name, record[atr + 1], (block_number, record_number))
                     self.index_manager.delete(index_name, record[atr + 1])
-                break
             else:
                 block['change'] = True
                 block['pin'] = True

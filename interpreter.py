@@ -47,7 +47,7 @@ def parse_sql(api, sql):
     sql = sql.replace('\n', ' ').replace('\t', '')
     print(sql)
     sql_strs = sql.split()
-    #print(sql_strs)
+    # print(sql_strs)
     command = sql_strs[0].lower()
 
     if command == 'create':
@@ -60,8 +60,8 @@ def parse_sql(api, sql):
             assert start != -1 and end != -1, '非法SQL，缺少括号'
             artribute_table = sql[start + 1:end].split(',')
             assert len(artribute_table) > 0, '缺少属性'
-            #print(table_name)
-            #for c in artribute_table:
+            # print(table_name)
+            # for c in artribute_table:
             #    print(c)
             api.create_table(table_name, artribute_table)
 
@@ -74,7 +74,7 @@ def parse_sql(api, sql):
             end = sql.find(')')
             artribute_name = sql[start + 1:end]
             artribute_name = artribute_name.replace(' ', '')
-            #print(artribute_name)
+            # print(artribute_name)
             # self.create_index()
             api.create_index(table_name, index_name, artribute_name)
 
@@ -97,7 +97,7 @@ def parse_sql(api, sql):
                 start = sql.lower().find('where')
                 conditions = sql[start + 5:]
                 conditions = conditions.split('and')
-                #print(conditions)
+                # print(conditions)
                 api.delete_records(table_name, conditions)
         else:  # 若缺省条件
             conditions = []
@@ -111,7 +111,7 @@ def parse_sql(api, sql):
         tuple_str = sql[start + 6:]
         record = eval(tuple_str)
         # print(tuple_str)
-        #print(record)
+        # print(record)
         api.insert_values(table_name, record)
 
     elif command == 'select':
@@ -124,9 +124,9 @@ def parse_sql(api, sql):
                 start = sql.lower().find('where')
                 conditions = sql[start + 5:]
                 conditions = conditions.split('and')
-                #print(conditions)
+                # print(conditions)
                 rec_block = api.select_records(table_name, conditions)
-                #print(len(rec_block))
+                # print(len(rec_block))
                 for block_number, record_number in rec_block:
                     record = api.get_record_by_block(table_name, block_number, record_number)
                     if record[0] == 1:
@@ -140,16 +140,16 @@ def parse_sql(api, sql):
             for block_number, record_number in rec_block:
                 record = api.get_record_by_block(table_name, block_number, record_number)
                 if record[0] == 1:
-                    for i in range(1,len(record)):
+                    for i in range(1, len(record)):
                         print(record[i], end=' ')
                     print()
 
-    #elif command == 'quit':
+    # elif command == 'quit':
     #    api.record_manager.__del__();
 
-    elif command == 'execute':
+    elif command == 'exec':
         file_name = sql_strs[1].replace(' ', '')
-        execute_commands(api, file_name)
+        execute_commands(api, file_name + '.sql')
 
     elif command == 'show':
         if sql_strs[1] == 'tables':
@@ -176,8 +176,6 @@ def parse_sql(api, sql):
             print('-------------------')
         else:
             print('表不存在')
-
-
 
 
 def main():

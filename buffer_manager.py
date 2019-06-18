@@ -25,7 +25,7 @@ class BufferManager:
         for i, record in enumerate(self.buffer[table_name][block_number]['block']):
             if record:
                 for item, f in zip(record, fmt):
-                    if type(item) == str:
+                    if f.endswith('s'):
                         block += struct.pack(f, item.encode())
                     else:
                         block += struct.pack(f, item)
@@ -121,7 +121,15 @@ class BufferManager:
         self.buffer[table_name][block_number]['block'] = []
         num_records = self.block_size // record_size
         for i in range(num_records):
-            self.buffer[table_name][block_number]['block'].append([])
+            record = []
+            for f in fmt:
+                if f == 'f':
+                    record.append(0.0)
+                elif f == 'i':
+                    record.append(0)
+                else:
+                    record.append('')
+            self.buffer[table_name][block_number]['block'].append(record)
         return self.buffer[table_name][block_number]
 
     def change_block(self, table_name, block_number):
