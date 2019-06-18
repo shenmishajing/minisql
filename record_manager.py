@@ -370,6 +370,6 @@ class RecordManager:
             f.close()
 
         for table_name in self.buffer_manager.buffer:
-            for block_number in self.buffer_manager.buffer[table_name]:
+            for block_number in list(self.buffer_manager.buffer[table_name]):
                 self.buffer_manager.write_block(table_name, block_number,
                                                 self.catalog_manager.meta_data[table_name]['fmt'])

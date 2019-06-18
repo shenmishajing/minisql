@@ -33,8 +33,8 @@ class BufferManager:
         table_file = open(self.work_dir + '/' + table_name + '.bin', 'ab')
         table_file.seek(block_number * self.block_size)
         table_file.write(bytes(block))
-        self.buffer[table_name][block_number]['change'] = False
         table_file.close()
+        del self.buffer[table_name][block_number]
 
     def swap_block(self, fmt):
         last_min_time = self.current_block_used_time

@@ -17,7 +17,7 @@ create index student_name on student ( sname );
 file = open('test.sql', 'w')
 file.write(start)
 
-n = 10 ** 5
+n = 10 ** 2
 
 for i in range(n):
     sno = ''
