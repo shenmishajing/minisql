@@ -112,24 +112,31 @@ class RecordManager:
     def calculate_search_range_percentage(self, atr, search_range):
         if atr['type'] == 0:
             if search_range[1] is None and search_range[2] is None:
-                search_range_percentage = 1
+                search_range_percentage = None
             elif search_range[1] is not None and search_range[2] is None:
                 search_range_percentage = (2 ** 31 - search_range[1]) / (2 ** 32)
             elif search_range[1] is None and search_range[2] is not None:
-                search_range_percentage = 2
+                search_range_percentage = None
             elif search_range[1] is not None and search_range[2] is not None:
                 search_range_percentage = (search_range[2] - search_range[1]) / (2 ** 32)
         elif atr['type'] == -1:
             if search_range[1] is None and search_range[2] is None:
-                search_range_percentage = 1
+                search_range_percentage = None
             elif search_range[1] is not None and search_range[2] is None:
                 search_range_percentage = (3.4E+38 - search_range[1]) / (6.8E+38)
             elif search_range[1] is None and search_range[2] is not None:
-                search_range_percentage = 2
+                search_range_percentage = None
             elif search_range[1] is not None and search_range[2] is not None:
                 search_range_percentage = (search_range[2] - search_range[1]) / (6.8E+38)
         else:
-            search_range_percentage = 1
+            if search_range[1] is None and search_range[2] is None:
+                search_range_percentage = None
+            elif search_range[1] is not None and search_range[2] is None:
+                search_range_percentage = 1
+            elif search_range[1] is None and search_range[2] is not None:
+                search_range_percentage = None
+            elif search_range[1] is not None and search_range[2] is not None:
+                search_range_percentage = 1
 
         return search_range_percentage
 
@@ -148,7 +155,7 @@ class RecordManager:
 
     def calculate_search_key(self, table_name, find_commands):
         best_search_key = None
-        best_search_range_percentage = 2
+        best_search_range_percentage = None
         search_range = {}
         for key in find_commands:
             atr_index = None
@@ -176,7 +183,7 @@ class RecordManager:
                     search_range[atr_index]['range'][3] = 1
                     search_range[atr_index]['unequal'] = []
                     if atr_index in self.catalog_manager.meta_data[table_name]['index']:
-                        if best_search_range_percentage:
+                        if best_search_range_percentage is None or best_search_range_percentage > 0:
                             best_search_key = atr_index
                             best_search_range_percentage = 0
                 elif command[0] == '<>':
@@ -208,7 +215,8 @@ class RecordManager:
                             search_range_percentage = self.calculate_search_range_percentage(
                                 self.catalog_manager.meta_data[table_name]['atr'][atr_index],
                                 search_range[atr_index]['range'])
-                            if search_range_percentage < best_search_range_percentage:
+                            if search_range_percentage is not None and (best_search_range_percentage is None or (
+                                    search_range_percentage < best_search_range_percentage)):
                                 best_search_key = atr_index
                                 best_search_range_percentage = search_range_percentage
                 elif command[0] == '>':
@@ -232,7 +240,8 @@ class RecordManager:
                             search_range_percentage = self.calculate_search_range_percentage(
                                 self.catalog_manager.meta_data[table_name]['atr'][atr_index],
                                 search_range[atr_index]['range'])
-                            if search_range_percentage < best_search_range_percentage:
+                            if search_range_percentage is not None and (best_search_range_percentage is None or (
+                                    search_range_percentage < best_search_range_percentage)):
                                 best_search_key = atr_index
                                 best_search_range_percentage = search_range_percentage
                 elif command[0] == '<=':
@@ -255,7 +264,8 @@ class RecordManager:
                             search_range_percentage = self.calculate_search_range_percentage(
                                 self.catalog_manager.meta_data[table_name]['atr'][atr_index],
                                 search_range[atr_index]['range'])
-                            if search_range_percentage < best_search_range_percentage:
+                            if search_range_percentage is not None and (best_search_range_percentage is None or (
+                                    search_range_percentage < best_search_range_percentage)):
                                 best_search_key = atr_index
                                 best_search_range_percentage = search_range_percentage
                 elif command[0] == '>=':
@@ -277,7 +287,8 @@ class RecordManager:
                             search_range_percentage = self.calculate_search_range_percentage(
                                 self.catalog_manager.meta_data[table_name]['atr'][atr_index],
                                 search_range[atr_index]['range'])
-                            if search_range_percentage < best_search_range_percentage:
+                            if search_range_percentage is not None and (best_search_range_percentage is None or (
+                                    search_range_percentage < best_search_range_percentage)):
                                 best_search_key = atr_index
                                 best_search_range_percentage = search_range_percentage
 
