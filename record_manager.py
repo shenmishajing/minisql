@@ -135,13 +135,12 @@ class RecordManager:
             if search_range[1] is None and search_range[2] is None:
                 search_range_percentage = None
             elif search_range[1] is not None and search_range[2] is None:
-                search_range_percentage = 1 - int.from_bytes(search_range[1], 'big') / (2 ** (atr['type'] * 8))
+                search_range_percentage = 1 - int.from_bytes(search_range[1].encode(), 'big') / (2 ** (atr['type'] * 8))
             elif search_range[1] is None and search_range[2] is not None:
                 search_range_percentage = None
             elif search_range[1] is not None and search_range[2] is not None:
-                search_range_percentage = (int.from_bytes(search_range[1], 'big') - int.from_bytes(search_range[2],
-                                                                                                   'big')) / (
-                                                  2 ** (atr['type'] * 8))
+                search_range_percentage = (int.from_bytes(search_range[1].encode(), 'big') - int.from_bytes(
+                    search_range[2].encode(), 'big')) / (2 ** (atr['type'] * 8))
 
         return search_range_percentage
 

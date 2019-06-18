@@ -14,10 +14,12 @@ primary key ( sno )
 create index student_name on student ( sname );
 '''
 
-file = open('init.sql', 'w')
+file = open('test.sql', 'w')
 file.write(start)
 
-for i in range(2000):
+n = 10 ** 5
+
+for i in range(n):
     sno = ''
     sname = ''
     for j in range(8):
@@ -27,11 +29,11 @@ for i in range(2000):
     sex = 'b'
     if random.random() >= 0.5:
         sex = 'g'
-    height = random.random() * 100
-    weight = random.random() * 100
-    age = random.randint(0, 100)
-    insert = "insert into student values ('{}','{}',{},'{}',{:.2f},{:.2f});\n".format(sno, sname, age, sex, height, weight)
+    height = random.random() * n
+    weight = random.random() * n
+    age = random.randint(0, n)
+    insert = "insert into student values ('{}','{}',{},'{}',{:.2f},{:.2f});\n".format(sno, sname, age, sex, height,
+                                                                                      weight)
     file.write(insert)
 
 file.close()
-

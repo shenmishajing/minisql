@@ -42,11 +42,7 @@ def execute_commands(api, file_name):
             if ';' in line:
                 command += line[:line.find(';')]
                 try:
-                    print('start run command: ' + command)
-                    start = time.time()
                     parse_sql(api, command)
-                    end = time.time()
-                    print(f'finish in {end - start} s')
                 except AssertionError as e:
                     print(e)
                 command = ''
@@ -59,6 +55,8 @@ def execute_commands(api, file_name):
 
 
 def parse_sql(api, sql):
+    print('start run command: ' + sql)
+    start_time = time.time()
     sql = sql.replace('\n', ' ').replace('\t', '')
     sql_strs = sql.split()
     command = sql_strs[0].lower()
@@ -179,6 +177,9 @@ def parse_sql(api, sql):
             print('-------------------')
         else:
             print('表不存在')
+
+    end_time = time.time()
+    print(f'finish in {end_time - start_time} s')
 
 
 def main():

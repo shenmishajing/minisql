@@ -72,6 +72,7 @@ class API:
 
     def __parse_conditions(self, table_name, conditions: list):
         result = {}
+        assert table_name in self.record_manager.catalog_manager.meta_data, '表格不存在'
         atributes = self.record_manager.catalog_manager.meta_data[table_name]['atr']
         for condition in conditions:
             condition = condition.split()
