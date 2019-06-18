@@ -31,7 +31,7 @@ class BufferManager:
                         block += struct.pack(f, item)
         if len(block) < self.block_size:
             block += b'\x00' * (self.block_size - len(block))
-        table_file = open(self.work_dir + '/' + table_name, 'wb+')
+        table_file = open(self.work_dir + '/' + table_name + '.bin', 'wb+')
         table_file.seek(block_number * self.block_size)
         table_file.write(bytes(block))
         self.buffer[table_name][block_number]['change'] = False
@@ -76,7 +76,7 @@ class BufferManager:
             self.buffer[table_name][block_number]['time'] = self.current_block_used_time
             self.buffer[table_name][block_number]['block'] = []
 
-            table_file = open(self.work_dir + '/' + table_name, 'rb')
+            table_file = open(self.work_dir + '/' + table_name + '.bin', 'rb')
             table_file.seek(block_number * self.block_size)
             block = table_file.read(self.block_size)
 

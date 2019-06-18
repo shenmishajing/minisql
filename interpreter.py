@@ -180,7 +180,6 @@ def parse_sql(api, sql):
 
 
 
-
 def main():
     api = API.API(4 * 1024, 4 * 1024)
     print_welcome()
