@@ -184,7 +184,7 @@ def parse_sql(api, sql):
 
 def main():
     sys.setrecursionlimit(10000000)
-    api = API.API(4 * 1024, 100)
+    api = API.API(4 * 1024, 4 * 1024)
     print_welcome()
     command = ''
     while command != 'quit':

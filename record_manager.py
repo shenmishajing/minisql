@@ -84,11 +84,11 @@ class RecordManager:
         atr_list = []
         insereted = True
         if not self.calculate_unique(table_name):
-            for block_number in range(self.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
-                block = self.buffer_manager.get_block(table_name, block_number,
+            for unique_block_number in range(self.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
+                block = self.buffer_manager.get_block(table_name, unique_block_number,
                                                       self.catalog_manager.meta_data[table_name]['record_size'],
                                                       self.catalog_manager.meta_data[table_name]['fmt'])
-                for record_number, record_exist in enumerate(block['block']):
+                for record_exist in block['block']:
                     assert not (record_exist[0] and self.calculate_unique_conflict(table_name, record,
                                                                                    record_exist)), 'key 已存在'
         for atr in self.catalog_manager.meta_data[table_name]['index']:
