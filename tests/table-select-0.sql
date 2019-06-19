@@ -1,4 +1,5 @@
-create table person ( 
+drop table person;
+create table person (
 	height float,
 	pid int,
 	name char(32),
@@ -32,5 +33,3 @@ select * from person where pid = 15;
 select * from person where height = 173.5;
 select * from person where age = 20 and height > 175.5;
 select * from person where height = 175.1;
-
-drop table person;
