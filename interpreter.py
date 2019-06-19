@@ -58,8 +58,8 @@ def execute_commands(api, file_name):
 
 
 def parse_sql(api, sql):
-    # print('start run command: ' + sql)
-    # start_time = time.time()
+    print('start run command: ' + sql)
+    start_time = time.time()
     sql = sql.replace('\n', ' ').replace('\t', '')
     sql_strs = re.split(' |\(|\)', sql)
     command = sql_strs[0].lower()
@@ -167,7 +167,8 @@ def parse_sql(api, sql):
         else:
             pass  # print('表不存在')
 
-    # end_time = time.time()  # print(f'finish in {end_time - start_time} s')
+    end_time = time.time()
+    print(f'finish in {end_time - start_time} s')
 
 
 def main():
