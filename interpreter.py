@@ -50,7 +50,7 @@ def execute_commands(api, file_name):
                     print(e)
                 command = ''
             else:
-                command += line
+                command += line.replace('\n', '')
         end_file = time.time()
         print(f'exec file finish in {end_file - start_file} s')
     else:
