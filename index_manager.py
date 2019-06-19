@@ -43,8 +43,8 @@ class IndexManager:
             return
         self.__bplustrees.pop(index_name)
 
-
-test = IndexManager(512)
-test.create_index('stu_name', 4)
-test.insert('stu_name', 'xiao', (0, 0))
-print(test.find('stu_name', 'xiao'))
+#
+# test = IndexManager(512)
+# test.create_index('stu_name', 4)
+# test.insert('stu_name', 'xiao', (0, 0))
+# print(test.find('stu_name', 'xiao'))

@@ -3,7 +3,7 @@ import os
 
 class CatalogManager:
 
-    def __init__(self, work_dir='.'):
+    def __init__(self, work_dir = '.'):
         self.work_dir = work_dir
         if os.path.exists(self.work_dir + '/catalog.txt'):
             catalog_file = open(self.work_dir + '/catalog.txt', 'r')
@@ -54,17 +54,18 @@ class CatalogManager:
         self.meta_data.update(table_map)
 
     def drop_table(self, table_name):
+        assert table_name in self.meta_data, '表格不存在'
         for index in self.meta_data[table_name]['index']:
             self.index_map.pop(self.meta_data[table_name]['index'][index])
         del self.meta_data[table_name]
 
     def create_index(self, table_name, index_map, index_name):
+        assert table_name in self.meta_data, '表格不存在'
         self.meta_data[table_name]['index'].update(index_map)
         self.index_map.update(index_name)
 
     def drop_index(self, index_name):
-        if index_name not in self.index_map.keys():
-            return
+        assert index_name in self.index_map, '索引不存在'
         table_name, atr_index = self.index_map[index_name]
         del self.index_map[index_name]
         del self.meta_data[table_name]['index'][atr_index]

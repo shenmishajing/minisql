@@ -2,6 +2,7 @@ import os
 import sys
 import API
 import time
+import re
 
 
 def find_last_str(s: str, string: str):
@@ -59,7 +60,7 @@ def parse_sql(api, sql):
     print('start run command: ' + sql)
     start_time = time.time()
     sql = sql.replace('\n', ' ').replace('\t', '')
-    sql_strs = sql.split()
+    sql_strs = re.split(' |\(|\)', sql)
     command = sql_strs[0].lower()
 
     if command == 'create':
@@ -78,9 +79,7 @@ def parse_sql(api, sql):
             assert sql_strs[3] == 'on', 'index非法指令'
             index_name = sql_strs[2]
             table_name = sql_strs[4]
-            start = sql.find('(')
-            end = sql.find(')')
-            artribute_name = sql[start + 1:end]
+            artribute_name = sql_strs[5]
             artribute_name = artribute_name.replace(' ', '')
             api.create_index(table_name, index_name, artribute_name)
 
@@ -185,13 +184,11 @@ def parse_sql(api, sql):
 
 def main():
     sys.setrecursionlimit(10000000)
-    api = API.API(100, 25)
+    api = API.API(4 * 1024, 100)
     print_welcome()
     command = ''
     while command != 'quit':
         command = get_command()
-        print(command)
-        # print(api.exec_sql(command))
         try:
             parse_sql(api, command)
         except AssertionError as e:

@@ -32,8 +32,25 @@ class RecordManager:
         for index_name in index_table.values():
             self.index_manager.drop_index(index_name)
         self.catalog_manager.drop_table(table_name)
+        if table_name in self.buffer_manager.buffer:
+            del self.buffer_manager.buffer[table_name]
+
+    def calculate_unique(self, table_name):
+        assert table_name in self.catalog_manager.meta_data, '表格不存在'
+        for i, atr in enumerate(self.catalog_manager.meta_data[table_name]['atr']):
+            if atr['unique'] and i not in self.catalog_manager.meta_data[table_name]['index']:
+                return False
+        return True
+
+    def calculate_unique_conflict(self, table_name, first, second):
+        assert table_name in self.catalog_manager.meta_data, '表格不存在'
+        for i, atr in enumerate(self.catalog_manager.meta_data[table_name]['atr']):
+            if atr['unique'] and first[i + 1] == second[i + 1]:
+                return True
+        return False
 
     def inseret(self, table_name, record):
+        assert table_name in self.catalog_manager.meta_data, '表格不存在'
         assert len(record) == len(self.catalog_manager.meta_data[table_name]['atr']), '插入值参数不足'
         atr_table = self.catalog_manager.meta_data[table_name]['atr']
         for i in range(0, len(record)):
@@ -66,6 +83,14 @@ class RecordManager:
 
         atr_list = []
         insereted = True
+        if not self.calculate_unique(table_name):
+            for block_number in range(self.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
+                block = self.buffer_manager.get_block(table_name, block_number,
+                                                      self.catalog_manager.meta_data[table_name]['record_size'],
+                                                      self.catalog_manager.meta_data[table_name]['fmt'])
+                for record_number, record_exist in enumerate(block['block']):
+                    assert not (record_exist[0] and self.calculate_unique_conflict(table_name, record,
+                                                                                   record_exist)), 'key 已存在'
         for atr in self.catalog_manager.meta_data[table_name]['index']:
             try:
                 # self.catalog_manager.meta_data[table_name]['index'][atr].insert(record[atr + 1],
@@ -348,6 +373,7 @@ class RecordManager:
 
     def find_all_records(self, table_name):
         res = []
+        assert table_name in self.catalog_manager.meta_data, '表格不存在'
         for block_number in range(self.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
             block = self.buffer_manager.get_block(table_name, block_number,
                                                   self.catalog_manager.meta_data[table_name]['record_size'],

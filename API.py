@@ -100,6 +100,7 @@ class API:
         # return
         art_index = 0
         type_size = 4
+        assert table_name in self.record_manager.catalog_manager.meta_data, '表格不存在'
         for temp in self.record_manager.catalog_manager.meta_data[table_name]['atr']:
             if temp['name'] == artribute_name:
                 if temp['type'] != 0 and temp['type'] != -1:
@@ -120,25 +121,25 @@ class API:
         callback = self.record_manager.index_manager.create_index(index_name, type_size)
         if callback:
             self.record_manager.catalog_manager.create_index(table_name, {art_index: index_name},
-                                                            {index_name: (table_name, art_index)})
+                                                             {index_name: (table_name, art_index)})
             # self.record_manager.catalog_manager.meta_data[table_name]['index'][index_name] = index
             for block_number in range(self.record_manager.catalog_manager.meta_data[table_name]['size']):  # 遍历所有的block
                 block = self.record_manager.buffer_manager.get_block(table_name, block_number,
-                                                                    self.record_manager.catalog_manager.meta_data[
-                                                                        table_name]['record_size'],
-                                                                    self.record_manager.catalog_manager.meta_data[
-                                                                        table_name]['fmt'])
+                                                                     self.record_manager.catalog_manager.meta_data[
+                                                                         table_name]['record_size'],
+                                                                     self.record_manager.catalog_manager.meta_data[
+                                                                         table_name]['fmt'])
                 for record_number, record in enumerate(block['block']):
                     if record[0]:
                         self.record_manager.index_manager.insert(index_name, record[art_index + 1],
-                                                             (block_number, record_number))
+                                                                 (block_number, record_number))
 
     def drop_index(self, index_name):
         if index_name in self.record_manager.catalog_manager.index_map.keys():
             table_name = self.record_manager.catalog_manager.index_map[index_name][0]
             atr_index = self.record_manager.catalog_manager.index_map[index_name][1]
-            assert atr_index != self.record_manager.catalog_manager.meta_data[table_name]['prime_key'],\
-                '无法对primary key的index进行删除'
+            assert atr_index != self.record_manager.catalog_manager.meta_data[table_name][
+                'prime_key'], '无法对primary key的index进行删除'
         self.record_manager.index_manager.drop_index(index_name)
         self.record_manager.catalog_manager.drop_index(index_name)
 
