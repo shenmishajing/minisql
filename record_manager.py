@@ -153,7 +153,7 @@ class RecordManager:
             elif search_range[1] is not None and search_range[2] is None:
                 search_range_percentage = (3.4E+38 - search_range[1]) / (6.8E+38)
             elif search_range[1] is None and search_range[2] is not None:
-                search_range_percentage = (3.4E+38 + search_range[1]) / (6.8E+38)
+                search_range_percentage = (3.4E+38 + search_range[2]) / (6.8E+38)
             elif search_range[1] is not None and search_range[2] is not None:
                 search_range_percentage = (search_range[2] - search_range[1]) / (6.8E+38)
         else:
