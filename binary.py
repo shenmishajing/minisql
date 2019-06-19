@@ -10,6 +10,6 @@ f = open('bin.bin', 'wb')
 
 bt = struct.pack('3s', bytes(str, 'ascii'))
 
-print(bt)
+# print(bt)
 
 f.write(bt)

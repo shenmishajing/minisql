@@ -37,6 +37,7 @@ def get_command():
 
 def execute_commands(api, file_name):
     if os.path.exists(file_name):
+        print(f'start exec file {file_name}')
         file = open(file_name, 'r')
         command = ''
         start_file = time.time()
@@ -57,8 +58,8 @@ def execute_commands(api, file_name):
 
 
 def parse_sql(api, sql):
-    print('start run command: ' + sql)
-    start_time = time.time()
+    # print('start run command: ' + sql)
+    # start_time = time.time()
     sql = sql.replace('\n', ' ').replace('\t', '')
     sql_strs = re.split(' |\(|\)', sql)
     command = sql_strs[0].lower()
@@ -118,29 +119,21 @@ def parse_sql(api, sql):
         assert sql_strs[1] == '*', 'minisql暂不支持非*查找'
         assert sql_strs[2] == 'from', 'SQL语句缺少from'
         table_name = sql_strs[3]
-        print('Results')
-        print('-------------------')
+        # print('Results')
+        # print('-------------------')
         if len(sql_strs) > 4:
             if sql_strs[4].lower() == 'where':
                 start = sql.lower().find('where')
                 conditions = sql[start + 5:]
                 conditions = conditions.split('and')
-                rec_block = api.select_records(table_name, conditions)
-                for block_number, record_number in rec_block:
-                    record = api.get_record_by_block(table_name, block_number, record_number)
-                    if record[0] == 1:
-                        for i in range(1, len(record)):
-                            print(record[i], end = '\t')
-                        print()
+                rec_block = api.select_records(table_name,
+                                               conditions)  # for block_number, record_number in rec_block:  #     record = api.get_record_by_block(table_name, block_number, record_number)  #     # if record[0] == 1:  #     #     for i in range(1, len(record)):  #     #         # print(record[i], end = '\t')  #     #     # print()
         else:
             conditions = []
             rec_block = api.select_records(table_name, conditions)
             for block_number, record_number in rec_block:
-                record = api.get_record_by_block(table_name, block_number, record_number)
-                for i in range(1, len(record)):
-                    print(record[i], end = '\t')
-                print()
-        print('-------------------')
+                record = api.get_record_by_block(table_name, block_number,
+                                                 record_number)  # for i in range(1, len(record)):  #     # print(record[i], end = '\t')  # print()  # print('-------------------')
 
     elif command == 'exec':
         file_name = sql_strs[1].replace(' ', '')
@@ -148,38 +141,33 @@ def parse_sql(api, sql):
 
     elif command == 'show':
         if sql_strs[1] == 'tables':
-            print('Tables')
-            print('-------------------')
+            # print('Tables')
+            # print('-------------------')
             for name in api.get_tables_names():
-                print(name)
-            print('-------------------')
+                print(name)  # print('-------------------')
         elif sql_strs[1] == 'index':
-            print('Index')
-            print('-------------------')
-            index_list = api.get_index_table()
-            for index in index_list:
-                print("{}\t{:>10}\t{:>10}\t{:>10}".format(index[0], index[1], index[2], index[3]))
+            # print('Index')
+            # print('-------------------')
+            index_list = api.get_index_table()  # for index in index_list:  #     # print("{}\t{:>10}\t{:>10}\t{:>10}".format(index[0], index[1], index[2], index[3]))
 
     elif command == 'desc':
         table_name = sql_strs[1]
         atr_list = api.get_atr_table(table_name)
         if atr_list is not None:
-            print(table_name)
-            print('-------------------')
+            # print(table_name)
+            # print('-------------------')
             for item in atr_list:
                 if item['type'] == -1:
                     type_str = 'float'
                 elif item['type'] == 0:
                     type_str = 'int'
                 else:
-                    type_str = 'char({})'.format(item['type'])
-                print("{}\t{:>10}".format(item['name'], type_str))
-            print('-------------------')
+                    type_str = 'char({})'.format(item[
+                                                     'type'])  # print("{}\t{:>10}".format(item['name'], type_str))  # print('-------------------')
         else:
-            print('表不存在')
+            pass  # print('表不存在')
 
-    end_time = time.time()
-    print(f'finish in {end_time - start_time} s')
+    # end_time = time.time()  # print(f'finish in {end_time - start_time} s')
 
 
 def main():

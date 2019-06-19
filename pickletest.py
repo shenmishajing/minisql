@@ -23,5 +23,5 @@ class Test:
 
 with open('./test.obj', 'rb') as f:
     data = pickle.load(f) #type:Test
-    print(data.value)
-    print(data.get_list())
+    # print(data.value)
+    # print(data.get_list())

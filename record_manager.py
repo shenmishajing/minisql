@@ -99,7 +99,7 @@ class RecordManager:
                 self.index_manager.insert(index_name, record[atr + 1], (block_number, record_number))
                 atr_list.append(atr)
             except AssertionError as e:
-                print(e)
+                # print(e)
                 insereted = False
                 # print('atr_list=', atr_list)
                 for atr in atr_list:

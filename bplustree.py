@@ -70,10 +70,10 @@ class BPlusTree:
                 l.append([])
             self.fill(l, self.__root, 0)
 
-            for i in range(h - 1):
-                for item in l[i]:
-                    print(item, end=' ')
-                print()
+            # for i in range(h - 1):
+            #     for item in l[i]:
+            #         # print(item, end=' ')
+            #     # print()
 
     def print_tree(self):
         if self.__root is None:
@@ -86,10 +86,10 @@ class BPlusTree:
                 for p in l[start].pointers:
                     l.append(p)
                     end += 1
-            if l[start].is_leaf():
-                print(l[start].keys, l[start].pointers)
-            else:
-                print(l[start].keys)
+            # if l[start].is_leaf():
+            #     # print(l[start].keys, l[start].pointers)
+            # else:
+            #     # print(l[start].keys)
             start += 1
 
 

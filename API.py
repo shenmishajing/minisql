@@ -108,14 +108,14 @@ class API:
                 break
             art_index += 1
         if art_index == len(self.record_manager.catalog_manager.meta_data[table_name]['atr']):
-            print('属性不存在')
+            # print('属性不存在')
             return
         if self.record_manager.catalog_manager.meta_data[table_name]['atr'][art_index]['unique'] != 1:
-            print('非unique属性无法建立索引')
+            # print('非unique属性无法建立索引')
             return
 
         if art_index in self.record_manager.catalog_manager.meta_data[table_name]['index'].keys():
-            print('该属性已存在index')
+            # print('该属性已存在index')
             return
 
         callback = self.record_manager.index_manager.create_index(index_name, type_size)
@@ -207,9 +207,9 @@ class API:
 
     def parse_sql(self, sql: str):
         sql = sql.replace('\n', ' ').replace('\t', '')
-        print(sql)
+        # print(sql)
         sql_strs = sql.split()
-        print(sql_strs)
+        # print(sql_strs)
         command = sql_strs[0].lower()
         if command == 'create':
             command_type = sql_strs[1].lower()
@@ -220,9 +220,10 @@ class API:
                 assert start != -1 and end != -1, '非法SQL，缺少括号'
                 artribute_table = sql[start + 1:end].split(',')
                 assert len(artribute_table) > 0, '缺少属性'
-                print(table_name)
-                for c in artribute_table:
-                    print(c)
+                # print(table_name)
+                # for c in artribute_table:
+                #     pass
+                    # print(c)
                 table = self.__construct_table(table_name, artribute_table)
                 self.record_manager.create_table(table)
             elif command_type == 'index':
@@ -234,7 +235,7 @@ class API:
                 end = sql.find(')')
                 artribute_name = sql[start + 1:end]
                 artribute_name = artribute_name.replace(' ', '')
-                print(artribute_name)
+                # print(artribute_name)
                 # self.create_index()
                 self.create_index(table_name, index_name, artribute_name)  # 这里还存在问题
 
@@ -257,7 +258,7 @@ class API:
                     start = sql.lower().find('where')
                     conditions = sql[start + 5:]
                     conditions = conditions.split('and')
-                    print(conditions)
+                    # print(conditions)
                     con = self.__parse_conditions(table_name, conditions)
                     records = self.record_manager.find(table_name, con)
                     for rec in records:
@@ -277,7 +278,7 @@ class API:
             tuple_str = sql[start + 6:]
             record = list(eval(tuple_str))
             # print(tuple_str)
-            print(record)
+            # print(record)
             self.record_manager.inseret(table_name, record)
 
         elif command == 'select':
@@ -290,17 +291,17 @@ class API:
                     start = sql.lower().find('where')
                     conditions = sql[start + 5:]
                     conditions = conditions.split('and')
-                    print(conditions)
+                    # print(conditions)
                     con = self.__parse_conditions(table_name, conditions)
                     rec_block = self.record_manager.find(table_name, con)
                     for rec in rec_block:
                         record = self.record_manager.get_record_by_block(table_name, rec[0], rec[1])
-                        print(record[1:])
+                        # print(record[1:])
             else:
                 rec_block = self.record_manager.find_all_records(table_name)
                 for rec in rec_block:
                     record = self.record_manager.get_record_by_block(table_name, rec[0], rec[1])
-                    print(record[1:])
+                    # print(record[1:])
 
 # api = API(512,1024)
 # s = '''
