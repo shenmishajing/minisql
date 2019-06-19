@@ -81,7 +81,7 @@ def parse_sql(api, sql):
             table_name = sql_strs[4]
             artribute_name = sql_strs[5]
             artribute_name = artribute_name.replace(' ', '')
-            api.create_index(table_name, index_name, artribute_name)
+            api.create_index(table_name, index_name, artribute_name)  # print('create successfully')
 
     elif command == 'drop':
         command_type = sql_strs[1].lower()
@@ -90,7 +90,7 @@ def parse_sql(api, sql):
             api.drop_index(index_name)
         elif command_type == 'table':
             table_name = sql_strs[2]
-            api.drop_table(table_name)
+            api.drop_table(table_name)  # print('drop successfully')
 
     elif command == 'delete':
         assert sql_strs[1].lower() == 'from', 'SQL非法指令'
@@ -103,7 +103,7 @@ def parse_sql(api, sql):
                 api.delete_records(table_name, conditions)
         else:  # 若缺省条件
             conditions = []
-            api.delete_records(table_name, conditions)
+            api.delete_records(table_name, conditions)  # print('delete successfully')
 
     elif command == 'insert':
         assert sql_strs[1].lower() == 'into', 'SQL非法指令'
@@ -112,7 +112,7 @@ def parse_sql(api, sql):
         assert start != -1, 'SQL缺少values关键字'
         tuple_str = sql[start + 6:]
         record = list(eval(tuple_str))
-        api.insert_values(table_name, record)
+        api.insert_values(table_name, record)  # print('insert successfully')
 
     elif command == 'select':
         assert sql_strs[1] == '*', 'minisql暂不支持非*查找'

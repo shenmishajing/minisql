@@ -20,20 +20,21 @@ class BufferManager:
         assert table_name in self.buffer, '要写入的块不在内存中'
         assert block_number in self.buffer[table_name], '要写入的块不在内存中'
         assert not self.buffer[table_name][block_number]['pin'], '要写入的块被 pin 了'
-        block = b''
-        for i, record in enumerate(self.buffer[table_name][block_number]['block']):
-            if record:
-                for item, f in zip(record, fmt):
-                    if f.endswith('s'):
-                        block += struct.pack(f, item.encode())
-                    else:
-                        block += struct.pack(f, item)
-        if len(block) < self.block_size:
-            block += b'\x00' * (self.block_size - len(block))
-        table_file = open(self.work_dir + '/' + table_name + '.bin', 'ab')
-        table_file.seek(block_number * self.block_size)
-        table_file.write(bytes(block))
-        table_file.close()
+        if self.buffer[table_name][block_number]['change']:
+            block = b''
+            for i, record in enumerate(self.buffer[table_name][block_number]['block']):
+                if record:
+                    for item, f in zip(record, fmt):
+                        if f.endswith('s'):
+                            block += struct.pack(f, item.encode())
+                        else:
+                            block += struct.pack(f, item)
+            if len(block) < self.block_size:
+                block += b'\x00' * (self.block_size - len(block))
+            table_file = open(self.work_dir + '/' + table_name + '.bin', 'ab')
+            table_file.seek(block_number * self.block_size)
+            table_file.write(bytes(block))
+            table_file.close()
         del self.buffer[table_name][block_number]
 
     def swap_block(self, fmt):
